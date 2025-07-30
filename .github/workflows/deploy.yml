@@ -136,6 +136,38 @@ jobs:
           set -e
           export DEBIAN_FRONTEND=noninteractive
           
+          # Função para aguardar liberação do apt lock
+          wait_for_apt_lock() {
+            echo '⏳ Aguardando liberação do apt lock...'
+            local max_attempts=30
+            local attempt=1
+            
+            while [ \$attempt -le \$max_attempts ]; do
+              if ! lsof /var/lib/dpkg/lock-frontend >/dev/null 2>&1 && ! pgrep -x unattended-upgr >/dev/null 2>&1; then
+                echo '✅ Apt lock liberado!'
+                return 0
+              fi
+              
+              echo \"Tentativa \$attempt/\$max_attempts - Aguardando unattended-upgrades terminar...\"
+              sleep 10
+              attempt=\$((attempt + 1))
+            done
+            
+            echo '⚠️ Timeout aguardando apt lock - forçando liberação...'
+            # Parar unattended-upgrades se necessário
+            systemctl stop unattended-upgrades.service || true
+            killall unattended-upgr 2>/dev/null || true
+            
+            # Remover locks manualmente se necessário
+            rm -f /var/lib/dpkg/lock-frontend /var/lib/dpkg/lock /var/cache/apt/archives/lock || true
+            dpkg --configure -a || true
+            
+            return 0
+          }
+          
+          # Aguardar liberação do lock antes de continuar
+          wait_for_apt_lock
+          
           echo '📦 Atualizando sistema...'
           apt-get update -y
           apt-get install -y curl wget gnupg2 software-properties-common build-essential jq htop ufw openssl
@@ -154,6 +186,7 @@ jobs:
           if ! command -v node >/dev/null 2>&1; then
             echo '📦 Instalando Node.js 18...'
             curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+            wait_for_apt_lock
             apt-get install -y nodejs
           fi
           
@@ -167,6 +200,7 @@ jobs:
           # Nginx
           if ! command -v nginx >/dev/null 2>&1; then
             echo '🌐 Instalando Nginx...'
+            wait_for_apt_lock
             apt-get install -y nginx
             
             # Configuração básica do Nginx com suporte a subdomínios
@@ -205,6 +239,7 @@ jobs:
           # Certificado SSL (se não existir)
           if ! command -v certbot >/dev/null 2>&1; then
             echo '🔒 Instalando Certbot...'
+            wait_for_apt_lock
             apt-get install -y snapd
             snap install core; snap refresh core
             snap install --classic certbot
@@ -370,6 +405,31 @@ jobs:
           export PATH='/usr/local/bin:/usr/bin:/bin:\$PATH'
           export DEBIAN_FRONTEND=noninteractive
           
+          # Função para aguardar liberação do apt lock (caso precise reinstalar Node.js)
+          wait_for_apt_lock() {
+            echo '⏳ Aguardando liberação do apt lock...'
+            local max_attempts=30
+            local attempt=1
+            
+            while [ \$attempt -le \$max_attempts ]; do
+              if ! lsof /var/lib/dpkg/lock-frontend >/dev/null 2>&1 && ! pgrep -x unattended-upgr >/dev/null 2>&1; then
+                echo '✅ Apt lock liberado!'
+                return 0
+              fi
+              
+              echo \"Tentativa \$attempt/\$max_attempts - Aguardando unattended-upgrades terminar...\"
+              sleep 10
+              attempt=\$((attempt + 1))
+            done
+            
+            echo '⚠️ Timeout aguardando apt lock - forçando liberação...'
+            systemctl stop unattended-upgrades.service || true
+            killall unattended-upgr 2>/dev/null || true
+            rm -f /var/lib/dpkg/lock-frontend /var/lib/dpkg/lock /var/cache/apt/archives/lock || true
+            dpkg --configure -a || true
+            return 0
+          }
+          
           # Verificar se Node.js está disponível
           echo '🔍 Verificando Node.js...'
           if ! command -v node >/dev/null 2>&1; then
@@ -390,6 +450,7 @@ jobs:
             if [ -z \"\$NODE_PATH\" ]; then
               echo '❌ Node.js não encontrado em lugar nenhum, reinstalando...'
               curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+              wait_for_apt_lock
               apt-get install -y nodejs
               export PATH='/usr/local/bin:/usr/bin:\$PATH'
             fi
