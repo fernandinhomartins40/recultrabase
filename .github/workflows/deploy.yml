@@ -253,7 +253,7 @@ jobs:
           # Clone ou pull
           if [ ! -d .git ]; then
             echo '🆕 Clonando repositório...'
-            git clone https://github.com/fernandinhomartins40/ultrabase.git .
+            git clone https://github.com/fernandinhomartins40/recultrabase.git .
           else
             echo '📥 Atualizando repositório...'
             git fetch origin
@@ -321,21 +321,41 @@ jobs:
       run: |
         echo "📦 Instalando dependências da aplicação..."
         sshpass -p '${{ secrets.VPS_PASSWORD }}' ssh -o StrictHostKeyChecking=no ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "
-          cd ${{ env.DEPLOY_DIR }}/src
+          echo '🔍 Debug: Verificando estrutura de diretórios...'
+          echo 'Diretório base:'
+          ls -la ${{ env.DEPLOY_DIR }}/
           
-          if [ -f 'package.json' ]; then
-            echo '📦 Instalando dependências...'
-            npm install --production --silent
+          echo 'Conteúdo do diretório src:'
+          ls -la ${{ env.DEPLOY_DIR }}/src/ 2>/dev/null || echo 'Diretório src não existe!'
+          
+          echo 'Tentando acessar diretório src...'
+          if [ -d '${{ env.DEPLOY_DIR }}/src' ]; then
+            cd ${{ env.DEPLOY_DIR }}/src
+            echo 'PWD atual:' \$(pwd)
+            echo 'Arquivos no diretório atual:'
+            ls -la
             
-            # Verificar instalação
-            if [ -d 'node_modules' ] && [ -f 'node_modules/express/package.json' ]; then
-              echo '✅ Dependências instaladas com sucesso'
+            if [ -f 'package.json' ]; then
+              echo '✅ package.json encontrado!'
+              echo 'Conteúdo do package.json:'
+              head -5 package.json
+              
+              echo '📦 Instalando dependências...'
+              npm install --production --silent
+              
+              # Verificar instalação
+              if [ -d 'node_modules' ] && [ -f 'node_modules/express/package.json' ]; then
+                echo '✅ Dependências instaladas com sucesso'
+              else
+                echo '❌ Erro na instalação das dependências'
+                exit 1
+              fi
             else
-              echo '❌ Erro na instalação das dependências'
+              echo '❌ package.json não encontrado no diretório src!'
               exit 1
             fi
           else
-            echo '❌ package.json não encontrado!'
+            echo '❌ Diretório src não existe!'
             exit 1
           fi
         "
