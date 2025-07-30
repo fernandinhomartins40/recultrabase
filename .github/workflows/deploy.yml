@@ -236,6 +236,49 @@ jobs:
             systemctl enable nginx
           fi
           
+          # Garantir configuração correta do Nginx
+          echo '🌐 Configurando Nginx (sempre aplicar)...'
+          echo 'server {' > /etc/nginx/sites-available/ultrabase
+          echo '    listen 80;' >> /etc/nginx/sites-available/ultrabase
+          echo '    server_name ultrabase.com.br www.ultrabase.com.br _;' >> /etc/nginx/sites-available/ultrabase
+          echo '    ' >> /etc/nginx/sites-available/ultrabase
+          echo '    location / {' >> /etc/nginx/sites-available/ultrabase
+          echo '        proxy_pass http://127.0.0.1:3080;' >> /etc/nginx/sites-available/ultrabase
+          echo '        proxy_http_version 1.1;' >> /etc/nginx/sites-available/ultrabase
+          echo '        proxy_set_header Upgrade \$http_upgrade;' >> /etc/nginx/sites-available/ultrabase
+          echo '        proxy_set_header Connection \"upgrade\";' >> /etc/nginx/sites-available/ultrabase
+          echo '        proxy_set_header Host \$host;' >> /etc/nginx/sites-available/ultrabase
+          echo '        proxy_set_header X-Real-IP \$remote_addr;' >> /etc/nginx/sites-available/ultrabase
+          echo '        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;' >> /etc/nginx/sites-available/ultrabase
+          echo '        proxy_set_header X-Forwarded-Proto \$scheme;' >> /etc/nginx/sites-available/ultrabase
+          echo '        proxy_cache_bypass \$http_upgrade;' >> /etc/nginx/sites-available/ultrabase
+          echo '        proxy_connect_timeout 30s;' >> /etc/nginx/sites-available/ultrabase
+          echo '        proxy_send_timeout 30s;' >> /etc/nginx/sites-available/ultrabase
+          echo '        proxy_read_timeout 30s;' >> /etc/nginx/sites-available/ultrabase
+          echo '    }' >> /etc/nginx/sites-available/ultrabase
+          echo '    ' >> /etc/nginx/sites-available/ultrabase
+          echo '    location /health {' >> /etc/nginx/sites-available/ultrabase
+          echo '        access_log off;' >> /etc/nginx/sites-available/ultrabase
+          echo '        return 200 \"healthy\";' >> /etc/nginx/sites-available/ultrabase
+          echo '        add_header Content-Type text/plain;' >> /etc/nginx/sites-available/ultrabase
+          echo '    }' >> /etc/nginx/sites-available/ultrabase
+          echo '}' >> /etc/nginx/sites-available/ultrabase
+          
+          # Habilitar site e remover default
+          ln -sf /etc/nginx/sites-available/ultrabase /etc/nginx/sites-enabled/
+          rm -f /etc/nginx/sites-enabled/default
+          rm -f /etc/nginx/sites-enabled/ultrabase-instances
+          
+          # Testar configuração
+          if /usr/sbin/nginx -t; then
+            echo '✅ Configuração do Nginx válida'
+            systemctl reload nginx || systemctl restart nginx
+            echo '✅ Nginx recarregado'
+          else
+            echo '❌ Erro na configuração do Nginx'
+            /usr/sbin/nginx -t
+          fi
+          
           # Certificado SSL (se não existir)
           if ! command -v certbot >/dev/null 2>&1; then
             echo '🔒 Instalando Certbot...'
@@ -549,10 +592,19 @@ jobs:
           
           echo ''
           echo '=== Teste via Nginx ==='
+          echo '🔍 Testando Nginx diretamente...'
           if curl -f -s http://localhost/ >/dev/null 2>&1; then
             echo '✅ Nginx proxy funcionando'
+            echo '📋 Resposta do Nginx:'
+            curl -s http://localhost/ | head -10
           else
             echo '❌ Problema no Nginx proxy - verificando e corrigindo...'
+            echo '📋 Status do Nginx:'
+            systemctl status nginx --no-pager -l || true
+            echo '📋 Configuração ativa:'
+            ls -la /etc/nginx/sites-enabled/
+            echo '📋 Teste de configuração:'
+            /usr/sbin/nginx -t
             
             # Verificar se Nginx está rodando
             if ! systemctl is-active nginx >/dev/null 2>&1; then
