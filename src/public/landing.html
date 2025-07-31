@@ -523,9 +523,45 @@
             initializeTheme();
             lucide.createIcons();
             
+            // Check if user is already logged in and redirect to dashboard
+            checkAuthAndRedirect();
+            
             // Update URLs based on current domain
             updateDomainUrls();
         });
+        
+        // Check authentication and redirect if logged in
+        async function checkAuthAndRedirect() {
+            const token = localStorage.getItem('ultrabase_token');
+            
+            if (token) {
+                try {
+                    // Verify token with server
+                    const response = await fetch('/api/auth/verify', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        // User is authenticated, redirect to dashboard
+                        console.log('✅ Usuário já logado, redirecionando para dashboard...');
+                        window.location.href = '/dashboard';
+                        return;
+                    } else {
+                        // Token is invalid, remove it
+                        localStorage.removeItem('ultrabase_token');
+                    }
+                } catch (error) {
+                    // Network error or token invalid, remove token
+                    console.warn('⚠️ Erro ao verificar autenticação:', error);
+                    localStorage.removeItem('ultrabase_token');
+                }
+            }
+            
+            // User is not authenticated, show landing page normally
+            console.log('🏠 Usuário não autenticado, exibindo landing page');
+        }
         
         function updateDomainUrls() {
             const currentHost = window.location.host;

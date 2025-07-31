@@ -234,10 +234,10 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // ROTA RAIZ PRIORITÁRIA - DEVE VIR ANTES DOS MIDDLEWARES DE REDIRECIONAMENTO
 // ====================================================================
 
-// Rota para gerenciador de instâncias (página inicial) - PRIORIDADE MÁXIMA
+// Rota principal (/) - Landing Page - PRIORIDADE MÁXIMA
 app.get('/', (req, res) => {
-  console.log(`🏠 Acesso ao gerenciador de instâncias de ${req.get('host')} - servindo index.html`);
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  console.log(`🏠 Acesso à página inicial de ${req.get('host')} - servindo landing.html`);
+  res.sendFile(path.join(__dirname, 'public', 'landing.html'));
 });
 
 // ====================================================================
@@ -4720,7 +4720,9 @@ async function startServer() {
 🚀 SUPABASE INSTANCE MANAGER
    
    🌐 Domínio Principal: https://${DOMAIN_CONFIG.primary}
-   🏠 Dashboard Local: http://localhost:${PORT}
+   🏠 Landing Page: http://localhost:${PORT}
+   📊 Dashboard: http://localhost:${PORT}/dashboard
+   🔑 Login: http://localhost:${PORT}/login
    🔗 API: https://${DOMAIN_CONFIG.primary}/api
    
    Docker Status: ${dockerAvailable ? '✅ Conectado' : '❌ Indisponível'}
@@ -4753,10 +4755,16 @@ app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
-// Rota para landing page (se necessária)
+// Rota para landing page (compatibilidade)
 app.get('/landing', (req, res) => {
   console.log(`🏠 Acesso à landing page de ${req.get('host')}`);
   res.sendFile(path.join(__dirname, 'public', 'landing.html'));
+});
+
+// Rota alternativa para home (compatibilidade)
+app.get('/home', (req, res) => {
+  console.log(`🏠 Redirecionamento /home para página inicial de ${req.get('host')}`);
+  res.redirect('/');
 });
 
 // Rota para dashboard (gerenciador existente) - sem autenticação prévia
