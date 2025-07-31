@@ -5933,7 +5933,7 @@ CREATE POLICY "Users can create posts" ON public.posts
                         const config = actionConfig[action] || { label: action, class: 'action-generic', icon: '🔧' };
                         
                         return `<button class="action-btn ${config.class}" 
-                                       onclick="executeDiagnosticAction('${projectId}', '${action}', '${service}')"
+                                       onclick="executeDiagnosticAction('${currentDiagnosticInstanceId}', '${action}', '${service}')"
                                        title="${config.label}">
                                     ${config.icon} ${config.label}
                                 </button>`;
