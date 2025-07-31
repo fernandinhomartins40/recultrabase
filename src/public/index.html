@@ -1801,12 +1801,21 @@
 
         // Initialize App
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔧 DEBUG: JavaScript carregado, DOM pronto');
+            
             // Initialize Lucide icons
             lucide.createIcons();
             
             initializeHeader();
             checkConnection();
             loadProjects();
+            
+            // DEBUG: Verificar se funções de diagnóstico estão definidas
+            console.log('🔧 DEBUG: Funções disponíveis:', {
+                showDiagnosticPanel: typeof showDiagnosticPanel,
+                runDiagnostic: typeof runDiagnostic,
+                closeDiagnosticDrawer: typeof closeDiagnosticDrawer
+            });
             
             // Event Listeners
             document.getElementById('new-project-btn').addEventListener('click', openModal);
@@ -5843,6 +5852,8 @@ CREATE POLICY "Users can create posts" ON public.posts
 
         // Função para abrir o modal de diagnósticos
         function showDiagnosticPanel(instanceId, instanceName) {
+            console.log('🔧 DEBUG: showDiagnosticPanel chamada', { instanceId, instanceName });
+            
             currentDiagnosticInstanceId = instanceId;
             currentDiagnosticInstanceName = instanceName;
             
@@ -5850,16 +5861,37 @@ CREATE POLICY "Users can create posts" ON public.posts
             const backdrop = document.getElementById('diagnostic-backdrop');
             const title = document.getElementById('diagnostic-drawer-title');
             
+            console.log('🔧 DEBUG: Elementos encontrados', { 
+                drawer: !!drawer, 
+                backdrop: !!backdrop, 
+                title: !!title 
+            });
+            
+            if (!drawer || !backdrop || !title) {
+                console.error('❌ DEBUG: Elementos do diagnóstico não encontrados!');
+                return;
+            }
+            
             title.innerHTML = `<i data-lucide="activity" class="lucide"></i> Diagnósticos - ${instanceName}`;
             
             backdrop.classList.add('visible');
             drawer.classList.add('open');
             
+            console.log('🔧 DEBUG: Classes adicionadas, drawer deve estar visível');
+            
             // Carregar configuração de agendamento existente
-            loadScheduleConfig();
+            try {
+                loadScheduleConfig();
+            } catch (error) {
+                console.error('❌ DEBUG: Erro em loadScheduleConfig:', error);
+            }
             
             // Re-render icons
-            updateDrawerIcons();
+            try {
+                updateDrawerIcons();
+            } catch (error) {
+                console.error('❌ DEBUG: Erro em updateDrawerIcons:', error);
+            }
         }
 
         // Função para fechar o drawer
