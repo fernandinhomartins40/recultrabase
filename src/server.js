@@ -1943,21 +1943,10 @@ DOCKER_SOCKET_LOCATION=/var/run/docker.sock
       if (await fs.pathExists(composeFilePath)) {
         try {
           console.log(`🐳 Parando containers para instância ${instanceId}...`);
-          const stopCommand = `cd "${dockerDir}" && docker compose -f "${instance.docker.compose_file}" down -v --remove-orphans --rmi all`;
+          const stopCommand = `cd "${dockerDir}" && docker compose -f "${instance.docker.compose_file}" down -v --remove-orphans`;
           await execAsync(stopCommand);
           containersStopped = true;
           console.log(`✅ Containers parados com sucesso`);
-
-          // Limpeza adicional para garantir remoção completa
-          console.log(`🧹 Executando limpeza adicional de recursos órfãos...`);
-          try {
-            await execAsync('docker container prune -f');
-            await execAsync('docker volume prune -f');
-            await execAsync('docker image prune -f');
-            console.log(`✅ Limpeza adicional concluída`);
-          } catch (cleanupError) {
-            console.warn(`⚠️ Erro na limpeza adicional (não crítico): ${cleanupError.message}`);
-          }
         } catch (dockerError) {
           console.warn(`⚠️ Erro ao parar containers (pode não estar rodando): ${dockerError.message}`);
           // Continuar mesmo se docker falhar
