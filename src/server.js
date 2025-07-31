@@ -82,7 +82,7 @@ function generateInstanceUrl(instanceId, port, useHttps = true) {
     // Limitar instanceId para usar apenas caracteres válidos para subdomínio
     const subdomain = instanceId.toLowerCase().replace(/[^a-z0-9-]/g, '').substring(0, 20);
     return `${protocol}://${subdomain}.${DOMAIN_CONFIG.subdomainSuffix}`;
-  } else if (true) { // TESTE: Reabilitar paths para validação
+  } else if (false) { // CONFIRMADO: Paths não funcionam - manter IP:porta
     // Usar paths em vez of subdomínios (mais confiável) - DESABILITADO
     const protocol = useHttps ? 'https' : 'http';
     return `${protocol}://${DOMAIN_CONFIG.primary}${DOMAIN_CONFIG.instancePath}/${instanceId}`;
