@@ -21,10 +21,23 @@ class HealthChecker {
     this.docker = new Docker();
     this.config = config;
     this.timeouts = {
-      container: 10000,  // 10s para verificações de container
-      http: 5000,        // 5s para requisições HTTP
-      database: 8000,    // 8s para conexão de database
-      network: 3000      // 3s para testes de rede
+      container: 15000,  // 15s para verificações de container
+      http: 8000,        // 8s para requisições HTTP
+      database: 12000,   // 12s para conexão de database
+      network: 5000      // 5s para testes de rede
+    };
+    
+    // Status messages mais informativos
+    this.statusMessages = {
+      unknown: 'Estado Desconhecido',
+      checking: 'Verificando...',
+      healthy: 'Saudável',
+      unhealthy: 'Com Problemas',
+      stopped: 'Parado',
+      starting: 'Iniciando',
+      not_found: 'Não Encontrado',
+      timeout: 'Timeout de Verificação',
+      error: 'Erro na Verificação'
     };
   }
 
@@ -69,7 +82,10 @@ class HealthChecker {
               exists: true,
               running: isRunning,
               status: container.Status,
-              created: new Date(container.Created * 1000).toISOString()
+              statusMessage: isRunning ? this.statusMessages.healthy : this.statusMessages.stopped,
+              created: new Date(container.Created * 1000).toISOString(),
+              canRestart: true,
+              actions: isRunning ? ['restart', 'logs'] : ['start', 'logs']
             };
 
             if (isRunning) runningCount++;
@@ -78,17 +94,24 @@ class HealthChecker {
               exists: false,
               running: false,
               status: 'not_found',
-              created: null
+              statusMessage: this.statusMessages.not_found,
+              created: null,
+              canRestart: false,
+              actions: ['recreate']
             };
           }
         } catch (error) {
           console.warn(`⚠️ Erro ao verificar container ${containerName}:`, error.message);
+          const isTimeout = error.message.includes('timeout');
           containerStatus[containerName] = {
             exists: false,
             running: false,
             status: 'error',
+            statusMessage: isTimeout ? this.statusMessages.timeout : this.statusMessages.error,
             error: error.message,
-            created: null
+            created: null,
+            canRestart: false,
+            actions: ['check_logs', 'recreate']
           };
         }
       }

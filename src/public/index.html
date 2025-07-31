@@ -5522,6 +5522,156 @@ CREATE POLICY "Users can create posts" ON public.posts
         .health-card.unhealthy {
             border-left: 4px solid #ef4444;
         }
+        
+        .service-actions {
+            margin-top: 0.5rem;
+            display: flex;
+            gap: 0.25rem;
+            flex-wrap: wrap;
+        }
+        
+        .action-btn {
+            padding: 0.25rem 0.5rem;
+            border: 1px solid hsl(var(--border));
+            border-radius: calc(var(--radius) - 2px);
+            background: hsl(var(--background));
+            color: hsl(var(--foreground));
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .action-btn:hover {
+            background: hsl(var(--accent));
+            color: hsl(var(--accent-foreground));
+        }
+        
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .action-restart {
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+        
+        .action-restart:hover {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .action-start {
+            border-color: #10b981;
+            color: #10b981;
+        }
+        
+        .action-start:hover {
+            background: #10b981;
+            color: white;
+        }
+        
+        .action-recreate {
+            border-color: #f59e0b;
+            color: #f59e0b;
+        }
+        
+        .action-recreate:hover {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        .action-logs {
+            border-color: #6b7280;
+            color: #6b7280;
+        }
+        
+        .action-logs:hover {
+            background: #6b7280;
+            color: white;
+        }
+        
+        .logs-modal {
+            max-width: 800px;
+            max-height: 600px;
+        }
+        
+        .logs-content {
+            background: #1a1a1a;
+            color: #e5e5e5;
+            padding: 1rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            line-height: 1.4;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: hsl(var(--card));
+            border: 1px solid hsl(var(--border));
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid hsl(var(--border));
+        }
+        
+        .modal-body {
+            flex: 1;
+            overflow: auto;
+        }
+        
+        .modal-footer {
+            margin-top: 1rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid hsl(var(--border));
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: hsl(var(--muted-foreground));
+        }
+        
+        .close-btn:hover {
+            color: hsl(var(--foreground));
+        }
 
         .history-container {
             max-height: 400px;
@@ -5753,13 +5903,50 @@ CREATE POLICY "Users can create posts" ON public.posts
                     const status = result.healthy ? 'healthy' : 'unhealthy';
                     const icon = result.healthy ? '✅' : '❌';
                     
+                    // Determinar ações disponíveis baseado no status
+                    let actions = [];
+                    let statusMessage = result.statusMessage || result.status || 'Estado Desconhecido';
+                    
+                    if (result.actions && result.actions.length > 0) {
+                        actions = result.actions;
+                    } else {
+                        // Fallback para ações baseadas no status
+                        if (!result.healthy && result.status !== 'not_found') {
+                            actions = ['restart', 'logs'];
+                        } else if (result.status === 'not_found') {
+                            actions = ['recreate'];
+                        } else if (result.healthy) {
+                            actions = ['logs'];
+                        }
+                    }
+                    
+                    // Gerar botões de ação
+                    const actionButtons = actions.map(action => {
+                        const actionConfig = {
+                            'restart': { label: 'Reiniciar', class: 'action-restart', icon: '🔄' },
+                            'start': { label: 'Iniciar', class: 'action-start', icon: '▶️' },
+                            'logs': { label: 'Ver Logs', class: 'action-logs', icon: '📄' },
+                            'recreate': { label: 'Recriar', class: 'action-recreate', icon: '🏗️' },
+                            'clear_logs': { label: 'Limpar Logs', class: 'action-clear', icon: '🧹' }
+                        };
+                        
+                        const config = actionConfig[action] || { label: action, class: 'action-generic', icon: '🔧' };
+                        
+                        return `<button class="action-btn ${config.class}" 
+                                       onclick="executeDiagnosticAction('${projectId}', '${action}', '${service}')"
+                                       title="${config.label}">
+                                    ${config.icon} ${config.label}
+                                </button>`;
+                    }).join('');
+                    
                     html += `
                         <div class="health-card ${status}">
                             <div class="service-info">
                                 <div class="service-name">${icon} ${service.replace('_', ' ').toUpperCase()}</div>
-                                <div class="service-status">${result.status || 'N/A'}</div>
+                                <div class="service-status">${statusMessage}</div>
                                 ${result.issues && result.issues.length > 0 ? 
                                     `<div class="issues">Problemas: ${result.issues.join(', ')}</div>` : ''}
+                                ${actionButtons ? `<div class="service-actions">${actionButtons}</div>` : ''}
                             </div>
                         </div>
                     `;
@@ -5861,6 +6048,104 @@ CREATE POLICY "Users can create posts" ON public.posts
                 console.error('Erro ao salvar configuração:', error);
                 showNotification('Erro ao salvar configuração', 'error');
             }
+        }
+
+        // Função para executar ações diagnósticas
+        async function executeDiagnosticAction(instanceId, action, target) {
+            try {
+                // Mapear ações para API
+                const actionMap = {
+                    'restart': 'restart_container',
+                    'start': 'start_container', 
+                    'recreate': 'recreate_service',
+                    'logs': 'get_logs',
+                    'clear_logs': 'clear_logs'
+                };
+                
+                const apiAction = actionMap[action] || action;
+                
+                // Mostrar confirmação para ações críticas
+                const riskyActions = ['recreate', 'restart_instance'];
+                if (riskyActions.includes(action)) {
+                    if (!confirm(`Tem certeza que deseja ${action === 'recreate' ? 'recriar' : 'reiniciar'} este serviço? Esta ação pode causar indisponibilidade temporária.`)) {
+                        return;
+                    }
+                }
+                
+                // Mostrar loading
+                const button = event.target;
+                const originalText = button.innerHTML;
+                button.innerHTML = '⏳ Executando...';
+                button.disabled = true;
+                
+                const response = await fetch(`/api/instances/${instanceId}/diagnostic-action`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: apiAction,
+                        target: target,
+                        confirmation: riskyActions.includes(action)
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    
+                    // Se for logs, mostrar em modal
+                    if (action === 'logs' && data.logs) {
+                        showLogsModal(target, data.logs);
+                    } else {
+                        // Re-executar diagnóstico para atualizar status
+                        setTimeout(() => {
+                            runDiagnostic();
+                        }, 2000);
+                    }
+                } else {
+                    showNotification(data.error || 'Erro ao executar ação', 'error');
+                }
+                
+            } catch (error) {
+                console.error('Erro ao executar ação:', error);
+                showNotification('Erro ao executar ação', 'error');
+            } finally {
+                // Restaurar botão
+                if (button) {
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                }
+            }
+        }
+        
+        // Mostrar logs em modal
+        function showLogsModal(containerName, logs) {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content logs-modal">
+                    <div class="modal-header">
+                        <h3>📄 Logs - ${containerName}</h3>
+                        <button onclick="this.closest('.modal-overlay').remove()" class="close-btn">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <pre class="logs-content">${logs}</pre>
+                    </div>
+                    <div class="modal-footer">
+                        <button onclick="this.closest('.modal-overlay').remove()" class="btn btn-secondary">Fechar</button>
+                        <button onclick="copyToClipboard('${logs.replace(/'/g, '\\'')}'); showNotification('Logs copiados!', 'success')" class="btn btn-primary">Copiar</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+        
+        // Copiar texto para clipboard
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).catch(err => {
+                console.error('Erro ao copiar:', err);
+            });
         }
 
         async function generateCronScript() {
