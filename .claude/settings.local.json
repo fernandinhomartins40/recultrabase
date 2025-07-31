@@ -36,7 +36,12 @@
       "Bash(fi)",
       "Bash(done)",
       "Bash(gh workflow run:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "WebFetch(domain:ultrabase.com.br)",
+      "Bash(nslookup:*)",
+      "Bash(ping:*)",
+      "Bash(telnet:*)",
+      "Bash(powershell:*)"
     ],
     "deny": []
   }
