@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultrabase</title>
+    <title>Ultrabase - Diagnósticos v2.0</title>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
+    <meta name="version" content="diagnostics-v2.0-<?php echo time(); ?>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1256,6 +1257,120 @@
                 min-width: 80px;
             }
 
+
+            /* Status Header - INTUITIVO */
+            .instance-status-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 1rem;
+                background: hsl(var(--surface-100));
+                border-radius: 8px;
+                border: 1px solid hsl(var(--border));
+                margin-bottom: 1.5rem;
+            }
+
+            .status-indicator {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
+
+            .status-dot {
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                animation: pulse 2s infinite;
+            }
+
+            .status-dot.status-healthy { background: hsl(var(--success)); }
+            .status-dot.status-warning { background: hsl(var(--warning)); }
+            .status-dot.status-error { background: hsl(var(--error)); }
+            .status-dot.status-unknown { background: hsl(var(--muted-foreground)); }
+
+            /* Action Cards - COMPLETO e INTUITIVO */
+            .diagnostic-actions-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 1rem;
+                margin-bottom: 2rem;
+            }
+
+            .action-card {
+                background: hsl(var(--card));
+                border: 1px solid hsl(var(--border));
+                border-radius: 12px;
+                padding: 1.5rem;
+                transition: all 0.2s ease;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .action-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+                border-color: hsl(var(--brand-primary));
+            }
+
+            .action-card.primary { border-left: 4px solid hsl(var(--brand-primary)); }
+            .action-card.secondary { border-left: 4px solid hsl(var(--muted-foreground)); }
+            .action-card.warning { border-left: 4px solid hsl(var(--warning)); }
+
+            .action-header {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                margin-bottom: 0.75rem;
+            }
+
+            .action-header .lucide {
+                width: 24px;
+                height: 24px;
+                color: hsl(var(--brand-primary));
+            }
+
+            .action-card.warning .action-header .lucide {
+                color: hsl(var(--warning));
+            }
+
+            .action-header h3 {
+                margin: 0;
+                font-size: 1.1rem;
+                font-weight: 600;
+                color: hsl(var(--foreground));
+            }
+
+            .action-card p {
+                color: hsl(var(--muted-foreground));
+                margin-bottom: 1rem;
+                font-size: 0.9rem;
+                line-height: 1.4;
+            }
+
+            .btn-block {
+                width: 100%;
+                justify-content: center;
+            }
+
+            /* Empty State - INTUITIVO */
+            .empty-state {
+                text-align: center;
+                padding: 3rem 1rem;
+                color: hsl(var(--muted-foreground));
+            }
+
+            .empty-state .lucide-lg {
+                width: 48px;
+                height: 48px;
+                margin-bottom: 1rem;
+                opacity: 0.5;
+            }
+
+            .empty-state h3 {
+                margin: 0 0 0.5rem 0;
+                font-size: 1.2rem;
+                font-weight: 500;
+            }
 
             /* Ajustes específicos para modal de diagnósticos */
             .tab-content {
@@ -5381,31 +5496,81 @@ CREATE POLICY "Users can create posts" ON public.posts
         </div>
         <div class="drawer-content">
             
+            <!-- Status da Instância - SEMPRE VISÍVEL -->
+            <div class="instance-status-header">
+                <div class="status-indicator">
+                    <div class="status-dot status-unknown"></div>
+                    <span id="instance-status-text">Verificando status...</span>
+                </div>
+                <button id="refresh-status-btn" class="btn-icon" onclick="quickStatusCheck()" title="Atualizar status">
+                    <i data-lucide="refresh-cw" class="lucide lucide-sm"></i>
+                </button>
+            </div>
+
             <div class="diagnostic-tabs">
-                <button class="tab-btn active" onclick="switchDiagnosticTab('current')">Diagnóstico Atual</button>
-                <button class="tab-btn" onclick="switchDiagnosticTab('history')">Histórico</button>
-                <button class="tab-btn" onclick="switchDiagnosticTab('schedule')">Agendamento</button>
-                <button class="tab-btn" onclick="switchDiagnosticTab('reports')">Relatórios</button>
+                <button class="tab-btn active" onclick="switchDiagnosticTab('current')">
+                    <i data-lucide="zap" class="lucide lucide-sm"></i>
+                    Diagnóstico
+                </button>
+                <button class="tab-btn" onclick="switchDiagnosticTab('history')">
+                    <i data-lucide="clock" class="lucide lucide-sm"></i>
+                    Histórico
+                </button>
+                <button class="tab-btn" onclick="switchDiagnosticTab('schedule')">
+                    <i data-lucide="calendar" class="lucide lucide-sm"></i>
+                    Agendamento
+                </button>
             </div>
 
             <!-- Aba Diagnóstico Atual -->
             <div id="diagnostic-current" class="tab-content active">
-                <div class="diagnostic-controls">
-                    <button id="run-diagnostic-btn" class="btn btn-primary" onclick="runDiagnostic()">
-                        <i data-lucide="activity" class="lucide lucide-sm"></i>
-                        Executar Diagnóstico Agora
-                    </button>
-                    <button class="btn btn-secondary" onclick="loadLastDiagnostic()">
-                        <i data-lucide="clock" class="lucide lucide-sm"></i>
-                        Ver Último Diagnóstico
-                    </button>
-                    <button id="analyze-problems-btn" class="btn btn-warning" onclick="analyzeInstanceProblems()" style="display: none;">
-                        <i data-lucide="wrench" class="lucide lucide-sm"></i>
-                        Analisar Problemas
-                    </button>
+                
+                <!-- Ações Principais - Layout em Cards -->
+                <div class="diagnostic-actions-grid">
+                    <div class="action-card primary">
+                        <div class="action-header">
+                            <i data-lucide="zap" class="lucide"></i>
+                            <h3>Diagnóstico Completo</h3>
+                        </div>
+                        <p>Verifica todos os serviços, containers e conectividade</p>
+                        <button id="run-diagnostic-btn" class="btn btn-primary btn-block" onclick="runDiagnostic()">
+                            <i data-lucide="play" class="lucide lucide-sm"></i>
+                            Executar Agora
+                        </button>
+                    </div>
+
+                    <div class="action-card secondary">
+                        <div class="action-header">
+                            <i data-lucide="clock" class="lucide"></i>
+                            <h3>Último Diagnóstico</h3>
+                        </div>
+                        <p>Visualizar resultados do diagnóstico anterior</p>
+                        <button class="btn btn-secondary btn-block" onclick="loadLastDiagnostic()">
+                            <i data-lucide="eye" class="lucide lucide-sm"></i>
+                            Ver Resultados
+                        </button>
+                    </div>
+
+                    <div class="action-card warning" id="problems-card" style="display: none;">
+                        <div class="action-header">
+                            <i data-lucide="alert-triangle" class="lucide"></i>
+                            <h3>Problemas Detectados</h3>
+                        </div>
+                        <p>Analisar e corrigir problemas encontrados</p>
+                        <button id="analyze-problems-btn" class="btn btn-warning btn-block" onclick="analyzeInstanceProblems()">
+                            <i data-lucide="wrench" class="lucide lucide-sm"></i>
+                            Analisar & Corrigir
+                        </button>
+                    </div>
                 </div>
+
+                <!-- Resultados do Diagnóstico -->
                 <div id="diagnostic-results" class="diagnostic-results-container">
-                    <p class="text-muted">Execute um diagnóstico para ver os resultados aqui.</p>
+                    <div class="empty-state">
+                        <i data-lucide="activity" class="lucide-lg"></i>
+                        <h3>Nenhum diagnóstico executado</h3>
+                        <p class="text-muted">Execute um diagnóstico para ver o status detalhado da instância</p>
+                    </div>
                 </div>
             </div>
 
@@ -5892,6 +6057,11 @@ CREATE POLICY "Users can create posts" ON public.posts
             } catch (error) {
                 console.error('❌ DEBUG: Erro em updateDrawerIcons:', error);
             }
+            
+            // Executar verificação rápida de status automaticamente
+            setTimeout(() => {
+                quickStatusCheck();
+            }, 500);
         }
 
         // Função para fechar o drawer
@@ -5900,6 +6070,49 @@ CREATE POLICY "Users can create posts" ON public.posts
             document.getElementById('diagnostic-backdrop').classList.remove('visible');
             currentDiagnosticInstanceId = null;
             currentDiagnosticInstanceName = null;
+        }
+
+        // Função para verificação rápida de status - NOVA
+        async function quickStatusCheck() {
+            if (!currentDiagnosticInstanceId) return;
+            
+            const statusDot = document.querySelector('.status-dot');
+            const statusText = document.getElementById('instance-status-text');
+            const refreshBtn = document.getElementById('refresh-status-btn');
+            
+            console.log('🔧 DEBUG: quickStatusCheck iniciado');
+            
+            // Animação de loading
+            refreshBtn.style.opacity = '0.5';
+            statusText.textContent = 'Verificando...';
+            statusDot.className = 'status-dot status-unknown';
+            
+            try {
+                const response = await fetch(`/api/instances/${currentDiagnosticInstanceId}/quick-health`);
+                const data = await response.json();
+                
+                console.log('🔧 DEBUG: Status recebido:', data);
+                
+                if (data.success && data.healthy) {
+                    statusDot.className = 'status-dot status-healthy';
+                    statusText.textContent = 'Instância saudável ✅';
+                } else {
+                    statusDot.className = 'status-dot status-warning';
+                    statusText.textContent = 'Problemas detectados ⚠️';
+                    
+                    // Mostrar card de problemas
+                    const problemsCard = document.getElementById('problems-card');
+                    if (problemsCard) {
+                        problemsCard.style.display = 'block';
+                    }
+                }
+            } catch (error) {
+                console.error('❌ DEBUG: Erro no status check:', error);
+                statusDot.className = 'status-dot status-error';
+                statusText.textContent = 'Erro na verificação ❌';
+            } finally {
+                refreshBtn.style.opacity = '1';
+            }
         }
 
         // Função para trocar abas
