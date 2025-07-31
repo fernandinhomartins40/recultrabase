@@ -967,7 +967,25 @@
 
         /* Form Styles */
         .form-group {
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            color: hsl(var(--foreground));
+            margin-bottom: 0.75rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: hsl(var(--background));
+            border: 1px solid hsl(var(--border));
+            border-radius: 8px;
+            color: hsl(var(--foreground));
+            font-size: 0.95rem;
         }
 
         .form-label {
@@ -1274,7 +1292,35 @@
             .status-indicator {
                 display: flex;
                 align-items: center;
-                gap: 0.75rem;
+                gap: 1rem;
+            }
+
+            .status-indicator span {
+                font-weight: 500;
+                font-size: 1rem;
+            }
+
+            .btn-icon {
+                background: hsl(var(--surface-100));
+                border: 1px solid hsl(var(--border));
+                border-radius: 8px;
+                padding: 0.75rem;
+                cursor: pointer;
+                transition: all 0.2s;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+            }
+
+            .btn-icon:hover {
+                background: hsl(var(--surface-200));
+                border-color: hsl(var(--brand-primary));
+            }
+
+            .btn-icon .lucide {
+                width: 16px;
+                height: 16px;
             }
 
             .status-dot {
@@ -1320,8 +1366,8 @@
             .action-header {
                 display: flex;
                 align-items: center;
-                gap: 0.75rem;
-                margin-bottom: 0.75rem;
+                gap: 1rem;
+                margin-bottom: 1.5rem;
             }
 
             .action-header .lucide {
@@ -1343,14 +1389,22 @@
 
             .action-card p {
                 color: hsl(var(--muted-foreground));
-                margin-bottom: 1rem;
-                font-size: 0.9rem;
-                line-height: 1.4;
+                margin-bottom: 1.5rem;
+                font-size: 0.95rem;
+                line-height: 1.5;
+                margin-top: 0.5rem;
             }
 
             .btn-block {
                 width: 100%;
                 justify-content: center;
+                gap: 0.75rem;
+                padding: 0.875rem 1.5rem;
+            }
+
+            .btn .lucide {
+                width: 16px;
+                height: 16px;
             }
 
             /* Empty State - INTUITIVO */
@@ -5729,6 +5783,14 @@ CREATE POLICY "Users can create posts" ON public.posts
             transition: all 0.2s;
             font-weight: 500;
             border-radius: 8px 8px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .tab-btn .lucide {
+            width: 18px;
+            height: 18px;
         }
 
         .tab-btn.active {
@@ -5817,14 +5879,21 @@ CREATE POLICY "Users can create posts" ON public.posts
         .diagnostic-controls label {
             font-weight: 500;
             color: hsl(var(--foreground));
+            margin-right: 0.75rem;
         }
 
         .diagnostic-controls select {
-            padding: 0.5rem 0.75rem;
+            padding: 0.75rem 1rem;
             background: hsl(var(--background));
             border: 1px solid hsl(var(--border));
-            border-radius: 6px;
+            border-radius: 8px;
             color: hsl(var(--foreground));
+            margin-right: 1rem;
+        }
+
+        .diagnostic-controls .btn {
+            padding: 0.75rem 1.25rem;
+            gap: 0.5rem;
         }
 
         .diagnostic-results-container,
@@ -6072,7 +6141,25 @@ CREATE POLICY "Users can create posts" ON public.posts
         }
 
         .form-group {
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            color: hsl(var(--foreground));
+            margin-bottom: 0.75rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: hsl(var(--background));
+            border: 1px solid hsl(var(--border));
+            border-radius: 8px;
+            color: hsl(var(--foreground));
+            font-size: 0.95rem;
         }
 
         .form-group label {
@@ -6103,6 +6190,8 @@ CREATE POLICY "Users can create posts" ON public.posts
         .schedule-actions .btn {
             flex: 1;
             min-width: 140px;
+            padding: 0.875rem 1.5rem;
+            gap: 0.75rem;
         }
 
         .cron-script-container {
