@@ -6133,7 +6133,7 @@ CREATE POLICY "Users can create posts" ON public.posts
                     </div>
                     <div class="modal-footer">
                         <button onclick="this.closest('.modal-overlay').remove()" class="btn btn-secondary">Fechar</button>
-                        <button onclick="copyToClipboard('${logs.replace(/'/g, '\\'')}'); showNotification('Logs copiados!', 'success')" class="btn btn-primary">Copiar</button>
+                        <button onclick="copyToClipboard(\`${logs}\`); showNotification('Logs copiados!', 'success')" class="btn btn-primary">Copiar</button>
                     </div>
                 </div>
             `;
