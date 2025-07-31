@@ -1263,11 +1263,12 @@
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                padding: 1rem;
-                background: hsl(var(--surface-100));
-                border-radius: 8px;
+                padding: 1.5rem;
+                background: hsl(var(--card));
+                border-radius: 12px;
                 border: 1px solid hsl(var(--border));
-                margin-bottom: 1.5rem;
+                margin-bottom: 2rem;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             }
 
             .status-indicator {
@@ -5525,6 +5526,11 @@ CREATE POLICY "Users can create posts" ON public.posts
             <!-- Aba Diagnóstico Atual -->
             <div id="diagnostic-current" class="tab-content active">
                 
+                <div class="section-header">
+                    <i data-lucide="zap" class="lucide"></i>
+                    <h3>Ações de Diagnóstico</h3>
+                </div>
+                
                 <!-- Ações Principais - Layout em Cards -->
                 <div class="diagnostic-actions-grid">
                     <div class="action-card primary">
@@ -5564,6 +5570,13 @@ CREATE POLICY "Users can create posts" ON public.posts
                     </div>
                 </div>
 
+                <div class="section-divider"></div>
+                
+                <div class="section-header">
+                    <i data-lucide="activity" class="lucide"></i>
+                    <h3>Resultados do Diagnóstico</h3>
+                </div>
+
                 <!-- Resultados do Diagnóstico -->
                 <div id="diagnostic-results" class="diagnostic-results-container">
                     <div class="empty-state">
@@ -5576,6 +5589,12 @@ CREATE POLICY "Users can create posts" ON public.posts
 
             <!-- Aba Histórico -->
             <div id="diagnostic-history" class="tab-content">
+                
+                <div class="section-header">
+                    <i data-lucide="clock" class="lucide"></i>
+                    <h3>Controles de Histórico</h3>
+                </div>
+                
                 <div class="diagnostic-controls">
                     <label>Mostrar últimas:</label>
                     <select id="history-limit" onchange="loadDiagnosticHistory()">
@@ -5588,6 +5607,14 @@ CREATE POLICY "Users can create posts" ON public.posts
                         Atualizar
                     </button>
                 </div>
+                
+                <div class="section-divider"></div>
+                
+                <div class="section-header">
+                    <i data-lucide="database" class="lucide"></i>
+                    <h3>Registros de Diagnóstico</h3>
+                </div>
+                
                 <div id="history-results" class="history-container">
                     <p class="text-muted">Carregando histórico...</p>
                 </div>
@@ -5595,6 +5622,12 @@ CREATE POLICY "Users can create posts" ON public.posts
 
             <!-- Aba Agendamento -->
             <div id="diagnostic-schedule" class="tab-content">
+                
+                <div class="section-header">
+                    <i data-lucide="calendar" class="lucide"></i>
+                    <h3>Configuração de Agendamento</h3>
+                </div>
+                
                 <div class="schedule-config">
                     <div class="form-group">
                         <label>Intervalo de Execução:</label>
@@ -5632,6 +5665,14 @@ CREATE POLICY "Users can create posts" ON public.posts
                         </button>
                     </div>
                 </div>
+                
+                <div class="section-divider"></div>
+                
+                <div class="section-header">
+                    <i data-lucide="code" class="lucide"></i>
+                    <h3>Script Cron</h3>
+                </div>
+                
                 <div id="cron-output" class="cron-script-container hidden">
                     <h4>Script Cron Gerado:</h4>
                     <pre id="cron-script"></pre>
@@ -5670,23 +5711,36 @@ CREATE POLICY "Users can create posts" ON public.posts
     <style>
         .diagnostic-tabs {
             display: flex;
-            border-bottom: 1px solid hsl(var(--border));
-            margin-bottom: 1rem;
+            border-bottom: 2px solid hsl(var(--border));
+            margin-bottom: 2rem;
+            background: hsl(var(--card));
+            border-radius: 12px 12px 0 0;
+            padding: 0 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
         .tab-btn {
             background: none;
             border: none;
-            padding: 0.75rem 1rem;
+            padding: 1rem 1.5rem;
             cursor: pointer;
-            border-bottom: 2px solid transparent;
+            border-bottom: 3px solid transparent;
             color: hsl(var(--muted-foreground));
             transition: all 0.2s;
+            font-weight: 500;
+            border-radius: 8px 8px 0 0;
         }
 
         .tab-btn.active {
             color: hsl(var(--brand-primary));
             border-bottom-color: hsl(var(--brand-primary));
+            background: hsl(var(--background));
+            font-weight: 600;
+        }
+
+        .tab-btn:hover:not(.active) {
+            color: hsl(var(--foreground));
+            background: hsl(var(--surface-100) / 0.5);
         }
 
         .tab-content {
@@ -5695,7 +5749,11 @@ CREATE POLICY "Users can create posts" ON public.posts
             max-height: calc(70vh - 8rem);
             overflow-y: auto;
             overflow-x: hidden;
-            padding-right: 0.5rem;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            background: hsl(var(--background));
+            border-radius: 12px;
+            border: 1px solid hsl(var(--border));
             word-wrap: break-word;
             box-sizing: border-box;
         }
@@ -5704,26 +5762,84 @@ CREATE POLICY "Users can create posts" ON public.posts
             display: block;
         }
 
+        /* Divisões visuais claras entre seções */
+        .tab-content > div {
+            margin-bottom: 2rem;
+        }
+
+        .tab-content > div:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Separadores visuais */
+        .section-divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, hsl(var(--border)), transparent);
+            margin: 2rem 0;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid hsl(var(--border) / 0.3);
+        }
+
+        .section-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: hsl(var(--foreground));
+        }
+
+        .section-header .lucide {
+            color: hsl(var(--brand-primary));
+            width: 20px;
+            height: 20px;
+        }
+
 
         .diagnostic-controls {
             display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
             flex-wrap: wrap;
             align-items: center;
+            padding: 1.5rem;
+            background: hsl(var(--card));
+            border: 1px solid hsl(var(--border));
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .diagnostic-controls label {
+            font-weight: 500;
+            color: hsl(var(--foreground));
+        }
+
+        .diagnostic-controls select {
+            padding: 0.5rem 0.75rem;
+            background: hsl(var(--background));
+            border: 1px solid hsl(var(--border));
+            border-radius: 6px;
+            color: hsl(var(--foreground));
         }
 
         .diagnostic-results-container,
         #diagnostic-results {
-            background: hsl(var(--surface-100));
+            background: hsl(var(--card));
             border: 1px solid hsl(var(--border));
-            border-radius: var(--radius);
-            padding: 1rem;
+            border-radius: 12px;
+            padding: 2rem;
             min-height: 300px;
-            max-height: 400px;
+            max-height: 450px;
             overflow-y: auto;
             overflow-x: hidden;
             word-wrap: break-word;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-top: 1rem;
             box-sizing: border-box;
         }
 
@@ -5898,11 +6014,17 @@ CREATE POLICY "Users can create posts" ON public.posts
         }
 
         .history-container {
-            max-height: 400px;
+            background: hsl(var(--card));
+            border: 1px solid hsl(var(--border));
+            border-radius: 12px;
+            padding: 2rem;
+            max-height: 450px;
+            min-height: 200px;
             overflow-y: auto;
             overflow-x: hidden;
             word-wrap: break-word;
             box-sizing: border-box;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
         .history-item {
@@ -5921,11 +6043,32 @@ CREATE POLICY "Users can create posts" ON public.posts
         }
 
         .schedule-config {
-            background: hsl(var(--surface-100));
+            background: hsl(var(--card));
             border: 1px solid hsl(var(--border));
-            border-radius: var(--radius);
-            padding: 1rem;
-            margin-bottom: 1rem;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .schedule-config .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .schedule-config .form-group label {
+            display: block;
+            font-weight: 500;
+            color: hsl(var(--foreground));
+            margin-bottom: 0.5rem;
+        }
+
+        .schedule-config select,
+        .schedule-config input {
+            padding: 0.75rem;
+            background: hsl(var(--background));
+            border: 1px solid hsl(var(--border));
+            border-radius: 8px;
+            color: hsl(var(--foreground));
         }
 
         .form-group {
@@ -5950,16 +6093,25 @@ CREATE POLICY "Users can create posts" ON public.posts
 
         .schedule-actions {
             display: flex;
-            gap: 0.5rem;
+            gap: 1rem;
             flex-wrap: wrap;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid hsl(var(--border));
+        }
+
+        .schedule-actions .btn {
+            flex: 1;
+            min-width: 140px;
         }
 
         .cron-script-container {
-            background: hsl(var(--surface-100));
+            background: hsl(var(--card));
             border: 1px solid hsl(var(--border));
-            border-radius: var(--radius);
-            padding: 1rem;
+            border-radius: 12px;
+            padding: 2rem;
             margin-top: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
         .cron-script-container pre {
