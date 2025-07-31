@@ -1792,6 +1792,7 @@
             
             if (missingElements.length > 0) {
                 console.warn('Elementos do header não encontrados:', missingElements);
+                // Não bloquear a execução - apenas avisar
             }
             
             // Inicializar tema e logo
@@ -1839,8 +1840,9 @@
             
             if (mainLogo) {
                 mainLogo.src = logoSrc;
+            } else {
+                console.warn('Elemento main-logo não encontrado');
             }
-            // Removido: loginLogo não existe mais após remoção do modal
         }
 
         function toggleTheme() {
@@ -1853,8 +1855,12 @@
 
         function updateThemeIcon() {
             const themeIcon = document.getElementById('theme-icon');
-            themeIcon.setAttribute('data-lucide', currentTheme === 'dark' ? 'sun' : 'moon');
-            lucide.createIcons(); // Re-render the icon
+            if (themeIcon) {
+                themeIcon.setAttribute('data-lucide', currentTheme === 'dark' ? 'sun' : 'moon');
+                lucide.createIcons(); // Re-render the icon
+            } else {
+                console.warn('Elemento theme-icon não encontrado');
+            }
         }
 
         // Connection Status
@@ -2478,6 +2484,8 @@
                         setTimeout(() => {
                             if (typeof runDiagnostic === 'function') {
                                 runDiagnostic();
+                            } else {
+                                console.warn('Função runDiagnostic não disponível');
                             }
                         }, 500);
                     }, 2000);
@@ -2664,7 +2672,9 @@
             drawer.classList.add('open');
             
             // Track modal opening
-            trackFeatureUsage('cursor_integration_opened', { projectId, projectName });
+            if (typeof trackFeatureUsage === 'function') {
+                trackFeatureUsage('cursor_integration_opened', { projectId, projectName });
+            }
             
             try {
                 const response = await fetch(`/api/instances/${projectId}/cursor-config`);
@@ -2673,15 +2683,25 @@
                 if (response.ok) {
                     renderCursorIntegration(config, projectName);
                     // Apply user preferences after rendering
-                    setTimeout(() => autoSelectPreferences(), 200);
+                    setTimeout(() => {
+                        if (typeof autoSelectPreferences === 'function') {
+                            autoSelectPreferences();
+                        }
+                    }, 200);
                     // Start configuration validation
-                    setTimeout(() => validateConfiguration(config), 300);
+                    setTimeout(() => {
+                        if (typeof validateConfiguration === 'function') {
+                            validateConfiguration(config);
+                        }
+                    }, 300);
                 } else {
                     throw new Error(config.error || 'Erro ao carregar configurações');
                 }
             } catch (error) {
                 content.innerHTML = `<div class="alert alert-error">Erro ao carregar configurações: ${error.message}</div>`;
-                trackFeatureUsage('cursor_integration_error', { projectId, error: error.message });
+                if (typeof trackFeatureUsage === 'function') {
+                    trackFeatureUsage('cursor_integration_error', { projectId, error: error.message });
+                }
             }
         }
 
@@ -3008,7 +3028,7 @@ INSERT INTO users (email) VALUES ('test@example.com');" rows="8"></textarea>
             // Verificar se o navigator.clipboard está disponível
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(text).then(() => {
-                    showAlert('✅ Configuração .env copiada!', 'success');
+                    showAlert('✅ Texto copiado para a área de transferência!', 'success');
                 }).catch((error) => {
                     console.error('Erro ao usar clipboard API:', error);
                     fallbackCopyToClipboard(text);
@@ -3034,7 +3054,7 @@ INSERT INTO users (email) VALUES ('test@example.com');" rows="8"></textarea>
                 document.body.removeChild(textArea);
                 
                 if (successful) {
-                    showAlert('✅ Configuração .env copiada!', 'success');
+                    showAlert('✅ Texto copiado para a área de transferência!', 'success');
                 } else {
                     throw new Error('document.execCommand falhou');
                 }
@@ -3060,7 +3080,10 @@ INSERT INTO users (email) VALUES ('test@example.com');" rows="8"></textarea>
             document.getElementById(tabName).classList.add('active');
             
             // Add active class to clicked button
-            event.target.classList.add('active');
+            const clickedBtn = document.querySelector(`.tab-btn[onclick*="${tabName}"]`);
+            if (clickedBtn) {
+                clickedBtn.classList.add('active');
+            }
         }
 
         function showCommand(type) {
@@ -3789,7 +3812,12 @@ async function uploadWithProgress(bucket, path, file, onProgress) {
                 document.querySelectorAll('.template-card').forEach(card => {
                     card.classList.remove('selected');
                 });
-                event.target.closest('.template-card').classList.add('selected');
+                
+                // Find the clicked template card
+                const clickedCard = document.querySelector(`[onclick*="loadCodeTemplate('${templateType}')"]`);
+                if (clickedCard) {
+                    clickedCard.classList.add('selected');
+                }
                 
                 trackFeatureUsage('template_loaded', { templateType });
             }
@@ -3980,8 +4008,21 @@ volumes:
         }
 
         function getCurrentConfig() {
-            // This would normally get the current config from the modal
-            // For now, return a placeholder
+            // Get current config from the active cursor integration modal
+            try {
+                const urlElement = document.querySelector('#cursor-integration-content .credential-value');
+                if (urlElement) {
+                    return {
+                        supabase_url: urlElement.value || 'URL_NOT_AVAILABLE',
+                        anon_key: 'ANON_KEY_AVAILABLE',
+                        service_role_key: 'SERVICE_KEY_AVAILABLE'
+                    };
+                }
+            } catch (error) {
+                console.warn('Erro ao obter configuração atual:', error);
+            }
+            
+            // Fallback to placeholder
             return {
                 supabase_url: 'URL_PLACEHOLDER',
                 anon_key: 'ANON_KEY_PLACEHOLDER',
@@ -4367,8 +4408,11 @@ CREATE POLICY "Users can create posts" ON public.posts
         // Alias para nova nomenclatura
         function closeChangePasswordDrawer() { closeChangePasswordModal(); }
 
-        // Change Password Form Handler
-        document.getElementById('change-password-form').addEventListener('submit', async (e) => {
+        // Change Password Form Handler - Inicializar após DOM carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            const changePasswordForm = document.getElementById('change-password-form');
+            if (changePasswordForm) {
+                changePasswordForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const submitBtn = document.getElementById('change-password-btn');
@@ -4435,16 +4479,22 @@ CREATE POLICY "Users can create posts" ON public.posts
                 errorDiv.style.display = 'flex';
                 lucide.createIcons();
             } finally {
-                // Reset button state
-                submitBtn.disabled = false;
-                btnText.textContent = 'Alterar Senha';
-                spinner.classList.add('hidden');
+                    // Reset button state
+                    submitBtn.disabled = false;
+                    btnText.textContent = 'Alterar Senha';
+                    spinner.classList.add('hidden');
+                }
+                });
             }
         });
 
         // Recreate Lucide icons after drawer content changes
         function updateDrawerIcons() {
-            lucide.createIcons();
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            } else {
+                console.warn('Lucide icons não disponíveis para atualização');
+            }
         }
 
         // Add keyboard support for closing drawers
@@ -5186,8 +5236,8 @@ CREATE POLICY "Users can create posts" ON public.posts
                     this.showDashboard();
                     this.updateUserHeader();
                     
-                    // Refresh instances
-                    loadInstances();
+                    // Refresh projects
+                    loadProjects();
                     
                     return data;
                 } catch (error) {
@@ -5826,8 +5876,11 @@ CREATE POLICY "Users can create posts" ON public.posts
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             
-            // Ativar aba selecionada
-            event.target.classList.add('active');
+            // Ativar aba selecionada (encontrar o botão correto)
+            const activeBtn = document.querySelector(`.tab-btn[onclick*="${tabName}"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+            }
             document.getElementById(`diagnostic-${tabName}`).classList.add('active');
             
             // Carregar dados específicos da aba
@@ -6052,6 +6105,9 @@ CREATE POLICY "Users can create posts" ON public.posts
 
         // Função para executar ações diagnósticas
         async function executeDiagnosticAction(event, instanceId, action, target) {
+            let button = null;
+            let originalText = '';
+            
             try {
                 // Mapear ações para API
                 const actionMap = {
@@ -6072,11 +6128,13 @@ CREATE POLICY "Users can create posts" ON public.posts
                     }
                 }
                 
-                // Mostrar loading
-                const button = event.target;
-                const originalText = button.innerHTML;
-                button.innerHTML = '⏳ Executando...';
-                button.disabled = true;
+                // Mostrar loading se event e target estiverem disponíveis
+                if (event && event.target) {
+                    button = event.target;
+                    originalText = button.innerHTML;
+                    button.innerHTML = '⏳ Executando...';
+                    button.disabled = true;
+                }
                 
                 const response = await fetch(`/api/instances/${instanceId}/diagnostic-action`, {
                     method: 'POST',
@@ -6133,7 +6191,7 @@ CREATE POLICY "Users can create posts" ON public.posts
                     </div>
                     <div class="modal-footer">
                         <button onclick="this.closest('.modal-overlay').remove()" class="btn btn-secondary">Fechar</button>
-                        <button onclick="copyToClipboard(\`${logs}\`); showAlert('Logs copiados!', 'success')" class="btn btn-primary">Copiar</button>
+                        <button onclick="copyTextToClipboard(\`${logs}\`); showAlert('Logs copiados!', 'success')" class="btn btn-primary">Copiar</button>
                     </div>
                 </div>
             `;
@@ -6141,11 +6199,17 @@ CREATE POLICY "Users can create posts" ON public.posts
             document.body.appendChild(modal);
         }
         
-        // Copiar texto para clipboard
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).catch(err => {
-                console.error('Erro ao copiar:', err);
-            });
+        // Função auxiliar para copiar texto para clipboard (versão simplificada)
+        function copyTextToClipboard(text) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).catch(err => {
+                    console.error('Erro ao copiar:', err);
+                    showAlert('❌ Erro ao copiar texto', 'error');
+                });
+            } else {
+                // Fallback para navegadores mais antigos
+                fallbackCopyToClipboard(text);
+            }
         }
 
         async function generateCronScript() {
@@ -6167,9 +6231,7 @@ CREATE POLICY "Users can create posts" ON public.posts
 
         function copyCronScript() {
             const script = document.getElementById('cron-script').textContent;
-            navigator.clipboard.writeText(script).then(() => {
-                showAlert('Script cron copiado para a área de transferência', 'success');
-            });
+            copyToClipboard(script);
         }
 
         async function removeScheduleConfig() {
