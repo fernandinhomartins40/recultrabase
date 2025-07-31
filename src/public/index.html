@@ -5852,13 +5852,13 @@ CREATE POLICY "Users can create posts" ON public.posts
                 
                 if (data.success) {
                     renderDiagnosticResults(data.diagnostic);
-                    showNotification('Diagnóstico executado com sucesso', 'success');
+                    showAlert('Diagnóstico executado com sucesso', 'success');
                 } else {
-                    showNotification('Falha no diagnóstico', 'error');
+                    showAlert('Falha no diagnóstico', 'error');
                 }
             } catch (error) {
                 console.error('Erro no diagnóstico:', error);
-                showNotification('Erro no diagnóstico: ' + error.message, 'error');
+                showAlert('Erro no diagnóstico: ' + error.message, 'error');
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = originalText;
@@ -5933,7 +5933,7 @@ CREATE POLICY "Users can create posts" ON public.posts
                         const config = actionConfig[action] || { label: action, class: 'action-generic', icon: '🔧' };
                         
                         return `<button class="action-btn ${config.class}" 
-                                       onclick="executeDiagnosticAction('${currentDiagnosticInstanceId}', '${action}', '${service}')"
+                                       onclick="executeDiagnosticAction(event, '${currentDiagnosticInstanceId}', '${action}', '${service}')"
                                        title="${config.label}">
                                     ${config.icon} ${config.label}
                                 </button>`;
@@ -6040,18 +6040,18 @@ CREATE POLICY "Users can create posts" ON public.posts
                 const data = await response.json();
                 
                 if (data.success) {
-                    showNotification('Configuração de agendamento salva com sucesso', 'success');
+                    showAlert('Configuração de agendamento salva com sucesso', 'success');
                 } else {
-                    showNotification('Erro ao salvar configuração', 'error');
+                    showAlert('Erro ao salvar configuração', 'error');
                 }
             } catch (error) {
                 console.error('Erro ao salvar configuração:', error);
-                showNotification('Erro ao salvar configuração', 'error');
+                showAlert('Erro ao salvar configuração', 'error');
             }
         }
 
         // Função para executar ações diagnósticas
-        async function executeDiagnosticAction(instanceId, action, target) {
+        async function executeDiagnosticAction(event, instanceId, action, target) {
             try {
                 // Mapear ações para API
                 const actionMap = {
@@ -6091,7 +6091,7 @@ CREATE POLICY "Users can create posts" ON public.posts
                 const data = await response.json();
                 
                 if (data.success) {
-                    showNotification(data.message, 'success');
+                    showAlert(data.message, 'success');
                     
                     // Se for logs, mostrar em modal
                     if (action === 'logs' && data.logs) {
@@ -6103,12 +6103,12 @@ CREATE POLICY "Users can create posts" ON public.posts
                         }, 2000);
                     }
                 } else {
-                    showNotification(data.error || 'Erro ao executar ação', 'error');
+                    showAlert(data.error || 'Erro ao executar ação', 'error');
                 }
                 
             } catch (error) {
                 console.error('Erro ao executar ação:', error);
-                showNotification('Erro ao executar ação', 'error');
+                showAlert('Erro ao executar ação', 'error');
             } finally {
                 // Restaurar botão
                 if (button) {
@@ -6133,7 +6133,7 @@ CREATE POLICY "Users can create posts" ON public.posts
                     </div>
                     <div class="modal-footer">
                         <button onclick="this.closest('.modal-overlay').remove()" class="btn btn-secondary">Fechar</button>
-                        <button onclick="copyToClipboard(\`${logs}\`); showNotification('Logs copiados!', 'success')" class="btn btn-primary">Copiar</button>
+                        <button onclick="copyToClipboard(\`${logs}\`); showAlert('Logs copiados!', 'success')" class="btn btn-primary">Copiar</button>
                     </div>
                 </div>
             `;
@@ -6157,18 +6157,18 @@ CREATE POLICY "Users can create posts" ON public.posts
                     document.getElementById('cron-script').textContent = data.script;
                     document.getElementById('cron-output').classList.remove('hidden');
                 } else {
-                    showNotification('Erro ao gerar script cron', 'error');
+                    showAlert('Erro ao gerar script cron', 'error');
                 }
             } catch (error) {
                 console.error('Erro ao gerar script cron:', error);
-                showNotification('Erro ao gerar script cron', 'error');
+                showAlert('Erro ao gerar script cron', 'error');
             }
         }
 
         function copyCronScript() {
             const script = document.getElementById('cron-script').textContent;
             navigator.clipboard.writeText(script).then(() => {
-                showNotification('Script cron copiado para a área de transferência', 'success');
+                showAlert('Script cron copiado para a área de transferência', 'success');
             });
         }
 
@@ -6189,13 +6189,13 @@ CREATE POLICY "Users can create posts" ON public.posts
                     document.getElementById('schedule-description').value = '';
                     document.getElementById('cron-output').classList.add('hidden');
                     
-                    showNotification('Configuração de agendamento removida', 'success');
+                    showAlert('Configuração de agendamento removida', 'success');
                 } else {
-                    showNotification('Erro ao remover configuração', 'error');
+                    showAlert('Erro ao remover configuração', 'error');
                 }
             } catch (error) {
                 console.error('Erro ao remover configuração:', error);
-                showNotification('Erro ao remover configuração', 'error');
+                showAlert('Erro ao remover configuração', 'error');
             }
         }
 
@@ -6296,18 +6296,18 @@ CREATE POLICY "Users can create posts" ON public.posts
                 
                 if (data.success) {
                     if (data.healthy) {
-                        showNotification('Instância está saudável - nenhuma correção necessária', 'success');
+                        showAlert('Instância está saudável - nenhuma correção necessária', 'success');
                         return;
                     }
                     
                     currentProblemAnalysis = data;
                     showRepairDialog(data);
                 } else {
-                    showNotification('Falha na análise de problemas: ' + data.message, 'error');
+                    showAlert('Falha na análise de problemas: ' + data.message, 'error');
                 }
             } catch (error) {
                 console.error('Erro na análise:', error);
-                showNotification('Erro na análise: ' + error.message, 'error');
+                showAlert('Erro na análise: ' + error.message, 'error');
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = originalText;
@@ -6444,7 +6444,7 @@ CREATE POLICY "Users can create posts" ON public.posts
         // Função para executar correção da instância
         async function executeInstanceRepair() {
             if (!currentProblemAnalysis) {
-                showNotification('Nenhuma análise encontrada', 'error');
+                showAlert('Nenhuma análise encontrada', 'error');
                 return;
             }
             
@@ -6490,7 +6490,7 @@ CREATE POLICY "Users can create posts" ON public.posts
                         message += `Backup criado: ${data.backup_created}\\n`;
                     }
                     
-                    showNotification('Correção executada com sucesso!', 'success');
+                    showAlert('Correção executada com sucesso!', 'success');
                     
                     // Executar novo diagnóstico após correção
                     setTimeout(() => {
@@ -6503,12 +6503,12 @@ CREATE POLICY "Users can create posts" ON public.posts
                         errorMessage += '\\n\\nRollback executado automaticamente.';
                     }
                     
-                    showNotification(errorMessage, 'error');
+                    showAlert(errorMessage, 'error');
                 }
                 
             } catch (error) {
                 console.error('Erro na correção:', error);
-                showNotification('Erro na execução: ' + error.message, 'error');
+                showAlert('Erro na execução: ' + error.message, 'error');
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = originalText;
