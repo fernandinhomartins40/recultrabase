@@ -1016,12 +1016,11 @@
         }
 
         /* ========================================
-           BARRAS DE ROLAGEM OTIMIZADAS
+           BARRAS DE ROLAGEM OTIMIZADAS - V2.1
            ======================================== */
 
-        /* IMPORTANTE: Apenas .drawer-content deve ter scroll, outros containers removem overflow desnecessário */
+        /* IMPORTANTE: Apenas .drawer-content deve ter scroll principal */
         .drawer-content::-webkit-scrollbar,
-        .tab-content::-webkit-scrollbar,
         .diagnostic-results-container::-webkit-scrollbar,
         #diagnostic-results::-webkit-scrollbar,
         .history-container::-webkit-scrollbar {
@@ -1029,7 +1028,6 @@
         }
 
         .drawer-content::-webkit-scrollbar-track,
-        .tab-content::-webkit-scrollbar-track,
         .diagnostic-results-container::-webkit-scrollbar-track,
         #diagnostic-results::-webkit-scrollbar-track,
         .history-container::-webkit-scrollbar-track {
@@ -1038,7 +1036,6 @@
         }
 
         .drawer-content::-webkit-scrollbar-thumb,
-        .tab-content::-webkit-scrollbar-thumb,
         .diagnostic-results-container::-webkit-scrollbar-thumb,
         #diagnostic-results::-webkit-scrollbar-thumb,
         .history-container::-webkit-scrollbar-thumb {
@@ -1048,7 +1045,6 @@
         }
 
         .drawer-content::-webkit-scrollbar-thumb:hover,
-        .tab-content::-webkit-scrollbar-thumb:hover,
         .diagnostic-results-container::-webkit-scrollbar-thumb:hover,
         #diagnostic-results::-webkit-scrollbar-thumb:hover,
         .history-container::-webkit-scrollbar-thumb:hover {
@@ -1057,7 +1053,6 @@
 
         /* Tema Escuro - Barras de Rolagem */
         .dark .drawer-content::-webkit-scrollbar-thumb,
-        .dark .tab-content::-webkit-scrollbar-thumb,
         .dark .diagnostic-results-container::-webkit-scrollbar-thumb,
         .dark #diagnostic-results::-webkit-scrollbar-thumb,
         .dark .history-container::-webkit-scrollbar-thumb {
@@ -1065,7 +1060,6 @@
         }
 
         .dark .drawer-content::-webkit-scrollbar-thumb:hover,
-        .dark .tab-content::-webkit-scrollbar-thumb:hover,
         .dark .diagnostic-results-container::-webkit-scrollbar-thumb:hover,
         .dark #diagnostic-results::-webkit-scrollbar-thumb:hover,
         .dark .history-container::-webkit-scrollbar-thumb:hover {
@@ -1074,7 +1068,6 @@
 
         /* Suporte para Firefox */
         .drawer-content,
-        .tab-content,
         .diagnostic-results-container,
         #diagnostic-results,
         .history-container {
@@ -1083,18 +1076,22 @@
         }
 
         .dark .drawer-content,
-        .dark .tab-content,
         .dark .diagnostic-results-container,
         .dark #diagnostic-results,
         .dark .history-container {
             scrollbar-color: hsl(var(--border)) transparent;
         }
 
+        /* IMPORTANTE: .tab-content não deve ter scroll próprio */
+        .tab-content {
+            overflow: visible !important; /* Força remoção de qualquer scroll */
+        }
+
         /* ========================================
            PREVENÇÃO DE OVERFLOW E QUEBRA DE TEXTO
            ======================================== */
 
-        /* Códigos e Pre-formatados */
+        /* Códigos e Pre-formatados - Aplicado a todos os elementos relevantes */
         .drawer-content pre,
         .drawer-content code,
         .tab-content pre,
@@ -1113,7 +1110,7 @@
             font-size: 0.875rem;
         }
 
-        /* Tabelas Responsivas */
+        /* Tabelas Responsivas - Aplicado a todos os elementos relevantes */
         .drawer-content table,
         .tab-content table,
         .diagnostic-results-container table,
@@ -1140,7 +1137,7 @@
             text-align: left;
         }
 
-        /* Textos Longos */
+        /* Textos Longos - Aplicado a todos os elementos relevantes */
         .drawer-content .long-text,
         .tab-content .long-text,
         .diagnostic-results-container .long-text,
@@ -1151,7 +1148,7 @@
             max-width: 100%;
         }
 
-        /* URLs e Links Longos */
+        /* URLs e Links Longos - Aplicado a todos os elementos relevantes */
         .drawer-content a[href],
         .tab-content a[href],
         .diagnostic-results-container a[href],
@@ -1727,7 +1724,7 @@
 
             /* Ajustes específicos para modal de diagnósticos */
             .tab-content {
-                max-height: calc(100vh - 12rem);
+                /* Removido max-height - deixar o drawer-content gerenciar */
                 min-height: 250px;
             }
 
@@ -6106,9 +6103,8 @@ CREATE POLICY "Users can create posts" ON public.posts
         .tab-content {
             display: none;
             min-height: 400px;
-            max-height: calc(70vh - 8rem);
-            overflow-y: auto;
-            overflow-x: hidden;
+            /* Removido: max-height e overflow - deixar o drawer-content gerenciar o scroll */
+            overflow: visible; /* Permite que o conteúdo seja scrollado pelo container pai */
             padding: 1.5rem;
             margin-top: 1rem;
             background: hsl(var(--background));
