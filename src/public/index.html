@@ -2347,7 +2347,9 @@
             emptyState.classList.add('hidden');
             
             try {
-                const response = await fetch('/api/instances');
+                const response = await fetch('/api/instances', {
+                    headers: authManager.getAuthHeaders()
+                });
                 const data = await response.json();
                 
                 if (response.ok) {
@@ -2808,7 +2810,8 @@
                 const response = await fetch(`/api/instances/${id}`, {
                     method: 'DELETE',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authManager.token}`
                     }
                 });
                 
@@ -2838,7 +2841,8 @@
                 const response = await fetch(`/api/instances/${id}/stop`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authManager.token}`
                     }
                 });
                 
@@ -2865,7 +2869,8 @@
                 const response = await fetch(`/api/instances/${id}/start`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authManager.token}`
                     }
                 });
                 
@@ -2895,7 +2900,8 @@
                 const stopResponse = await fetch(`/api/instances/${id}/stop`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authManager.token}`
                     }
                 });
                 
@@ -2911,7 +2917,8 @@
                 const startResponse = await fetch(`/api/instances/${id}/start`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authManager.token}`
                     }
                 });
                 
@@ -2961,7 +2968,9 @@
             drawer.classList.add('open');
             
             try {
-                const response = await fetch(`/api/instances/${projectId}/credentials`);
+                const response = await fetch(`/api/instances/${projectId}/credentials`, {
+                    headers: authManager.getAuthHeaders()
+                });
                 const credentials = await response.json();
                 
                 if (response.ok) {
@@ -5295,7 +5304,9 @@ console.log(result);`;
                     progressFill.style.width = '90%';
                 }
                 
-                const response = await fetch(`/api/instances/${instanceId}/health`);
+                const response = await fetch(`/api/instances/${instanceId}/health`, {
+                    headers: authManager.getAuthHeaders()
+                });
                 const data = await response.json();
                 
                 if (progressFill && progressStatus) {
