@@ -50,6 +50,11 @@
             --surface-100: 210 40% 98%;
             --surface-200: 210 40% 96%;
             --surface-300: 214.3 31.8% 91.4%;
+            
+            /* Variáveis adicionais para Cursor Integration */
+            --surface-50: 210 40% 99%;
+            --primary-dark: 221.2 83.2% 45%;
+            --success-foreground: 210 40% 98%;
         }
 
         .dark {
@@ -86,6 +91,11 @@
             --surface-100: 0 0% 12%; /* #1f1f1f */
             --surface-200: 0 0% 16%; /* #292929 */
             --surface-300: 0 0% 24%; /* #3d3d3d */
+            
+            /* Variáveis adicionais para Cursor Integration - Tema Escuro */
+            --surface-50: 0 0% 6%; /* #0f0f0f */
+            --primary-dark: 30 100% 42%;
+            --success-foreground: 0 0% 8%;
         }
 
         * {
@@ -951,38 +961,11 @@
                 border: 1px solid hsl(var(--border));
             }
 
-            /* Responsividade específica para drawer Cursor Integration */
-            .template-grid {
-                grid-template-columns: 1fr 1fr; /* 2 colunas em mobile */
-                gap: 0.5rem;
-            }
-
-            .template-card {
-                padding: 0.5rem;
-            }
-
-            .template-card h5 {
-                font-size: 0.8rem;
-            }
-
-            .template-card p {
-                font-size: 0.7rem;
-            }
-
-            .test-buttons {
-                flex-direction: column; /* Botões em coluna no mobile */
-                gap: 0.5rem;
-            }
-
-            .test-buttons .btn {
-                width: 100%;
-            }
+            /* Responsividade agora é gerenciada pelos estilos específicos do cursor-integration */
         }
 
         @media (max-width: 480px) {
-            .template-grid {
-                grid-template-columns: 1fr; /* 1 coluna em telas muito pequenas */
-            }
+            /* Mantido para outros elementos não relacionados ao cursor */
             
             .credential-item {
                 padding: 0.5rem;
@@ -1176,10 +1159,7 @@
             scrollbar-color: hsl(var(--border)) transparent;
         }
 
-        /* IMPORTANTE: .tab-content não deve ter scroll próprio */
-        .tab-content {
-            overflow: visible !important; /* Força remoção de qualquer scroll */
-        }
+        /* IMPORTANTE: Configuração de scroll para tab-content será gerenciada pelos estilos específicos do cursor */
 
         /* ========================================
            PREVENÇÃO DE OVERFLOW E QUEBRA DE TEXTO
@@ -1685,6 +1665,479 @@
             font-size: 0.875rem;
             font-weight: 500;
             border: 1px solid transparent;
+        }
+
+        /* ========================================
+           ESTILOS PARA INTEGRAÇÃO COM CURSOR - V2.1
+           ======================================== */
+
+        /* Container principal das tabs do cursor */
+        .cursor-integration-tabs {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-lg);
+            min-height: 400px;
+        }
+
+        /* Botões de navegação das tabs */
+        .tab-buttons {
+            display: flex;
+            gap: var(--spacing-xs);
+            border-bottom: 1px solid hsl(var(--border));
+            margin-bottom: var(--spacing-md);
+            overflow-x: auto;
+            padding-bottom: var(--spacing-sm);
+        }
+
+        .tab-btn {
+            padding: var(--spacing-sm) var(--spacing-md);
+            border: none;
+            background: transparent;
+            color: hsl(var(--muted-foreground));
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: 6px 6px 0 0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            white-space: nowrap;
+            min-width: fit-content;
+        }
+
+        .tab-btn:hover {
+            background: hsl(var(--surface-100));
+            color: hsl(var(--foreground));
+        }
+
+        .tab-btn.active {
+            background: hsl(var(--primary));
+            color: hsl(var(--primary-foreground));
+            border-bottom: 2px solid hsl(var(--primary));
+        }
+
+        /* Conteúdo das tabs */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ========================================
+           SETUP PROGRESS - BARRA DE PROGRESSO
+           ======================================== */
+
+        .setup-progress {
+            margin-bottom: var(--spacing-xl);
+            padding: var(--spacing-lg);
+            background: hsl(var(--surface-50));
+            border-radius: 8px;
+            border: 1px solid hsl(var(--border));
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: hsl(var(--surface-200));
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--primary-dark)));
+            border-radius: 3px;
+            transition: width 0.4s ease;
+            width: 0%;
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            gap: var(--spacing-sm);
+        }
+
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--spacing-xs);
+            flex: 1;
+            min-width: 0;
+        }
+
+        .step-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: hsl(var(--surface-200));
+            color: hsl(var(--muted-foreground));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .step-label {
+            font-size: 0.75rem;
+            color: hsl(var(--muted-foreground));
+            font-weight: 500;
+            text-align: center;
+            word-break: break-word;
+        }
+
+        .progress-step.active .step-number {
+            background: hsl(var(--primary));
+            color: hsl(var(--primary-foreground));
+            border-color: hsl(var(--primary));
+            box-shadow: 0 0 0 4px hsl(var(--primary) / 0.2);
+        }
+
+        .progress-step.active .step-label {
+            color: hsl(var(--primary));
+            font-weight: 600;
+        }
+
+        .progress-step.completed .step-number {
+            background: hsl(var(--success));
+            color: hsl(var(--success-foreground));
+            border-color: hsl(var(--success));
+        }
+
+        .progress-step.completed .step-label {
+            color: hsl(var(--success));
+        }
+
+        /* ========================================
+           SEÇÕES DE SETUP
+           ======================================== */
+
+        .setup-section {
+            margin-bottom: var(--spacing-xl);
+            padding: var(--spacing-lg);
+            background: hsl(var(--card));
+            border: 1px solid hsl(var(--border));
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .setup-section:hover {
+            border-color: hsl(var(--primary) / 0.3);
+            box-shadow: 0 2px 8px hsl(var(--foreground) / 0.1);
+        }
+
+        .setup-section h4 {
+            margin: 0 0 var(--spacing-md) 0;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: hsl(var(--foreground));
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .setup-description {
+            margin-bottom: var(--spacing-md);
+            color: hsl(var(--muted-foreground));
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        /* ========================================
+           TABS DE COMANDOS E FRAMEWORKS
+           ======================================== */
+
+        .command-tabs,
+        .framework-tabs {
+            display: flex;
+            gap: var(--spacing-xs);
+            margin-bottom: var(--spacing-md);
+            flex-wrap: wrap;
+        }
+
+        .cmd-tab,
+        .fw-tab {
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border: 1px solid hsl(var(--border));
+            background: hsl(var(--surface-100));
+            color: hsl(var(--muted-foreground));
+            font-size: 0.75rem;
+            font-weight: 500;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .cmd-tab:hover,
+        .fw-tab:hover {
+            background: hsl(var(--surface-200));
+            color: hsl(var(--foreground));
+        }
+
+        .cmd-tab.active,
+        .fw-tab.active {
+            background: hsl(var(--primary));
+            color: hsl(var(--primary-foreground));
+            border-color: hsl(var(--primary));
+        }
+
+        /* ========================================
+           GRID DE TEMPLATES
+           ======================================== */
+
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .template-card {
+            padding: var(--spacing-lg);
+            background: hsl(var(--card));
+            border: 1px solid hsl(var(--border));
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-sm);
+        }
+
+        .template-card:hover {
+            border-color: hsl(var(--primary));
+            box-shadow: 0 4px 12px hsl(var(--foreground) / 0.1);
+            transform: translateY(-2px);
+        }
+
+        .template-card .lucide {
+            width: 32px;
+            height: 32px;
+            color: hsl(var(--primary));
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .template-card h5 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: hsl(var(--foreground));
+        }
+
+        .template-card p {
+            margin: 0;
+            font-size: 0.875rem;
+            color: hsl(var(--muted-foreground));
+            line-height: 1.4;
+        }
+
+        /* ========================================
+           BOTÕES DE TESTE
+           ======================================== */
+
+        .test-buttons {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-lg);
+            flex-wrap: wrap;
+        }
+
+        .test-results {
+            background: hsl(var(--surface-50));
+            border: 1px solid hsl(var(--border));
+            border-radius: 6px;
+            padding: var(--spacing-md);
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.875rem;
+            min-height: 100px;
+            display: none;
+        }
+
+        .test-results.visible {
+            display: block;
+        }
+
+        .test-results.success {
+            border-color: hsl(var(--success));
+            background: hsl(var(--success) / 0.1);
+            color: hsl(var(--success));
+        }
+
+        .test-results.error {
+            border-color: hsl(var(--destructive));
+            background: hsl(var(--destructive) / 0.1);
+            color: hsl(var(--destructive));
+        }
+
+        /* ========================================
+           SEÇÃO DE AUTOMAÇÃO SQL
+           ======================================== */
+
+        .automation-section {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .automation-description {
+            margin-bottom: var(--spacing-md);
+            color: hsl(var(--muted-foreground));
+            font-size: 0.875rem;
+        }
+
+        .sql-executor {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .sql-executor textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: var(--spacing-md);
+            border: 1px solid hsl(var(--border));
+            border-radius: 6px;
+            background: hsl(var(--card));
+            color: hsl(var(--foreground));
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.875rem;
+            resize: vertical;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .sql-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            align-items: center;
+        }
+
+        .sql-results {
+            background: hsl(var(--surface-50));
+            border: 1px solid hsl(var(--border));
+            border-radius: 6px;
+            padding: var(--spacing-md);
+            margin-top: var(--spacing-md);
+            font-family: 'Monaco', 'Menlo', monospace;  
+            font-size: 0.875rem;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .sql-results.visible {
+            display: block;
+        }
+
+        /* ========================================
+           STATUS DE VALIDAÇÃO
+           ======================================== */
+
+        .validation-status {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-xs);
+            font-size: 0.75rem;
+            margin-top: var(--spacing-xs);
+        }
+
+        .validation-status.success {
+            color: hsl(var(--success));
+        }
+
+        .validation-status.error {
+            color: hsl(var(--destructive));
+        }
+
+        .validation-status.loading {
+            color: hsl(var(--muted-foreground));
+        }
+
+        /* ========================================
+           RESPONSIVIDADE ESPECÍFICA
+           ======================================== */
+
+        @media (max-width: 768px) {
+            .tab-buttons {
+                justify-content: flex-start;
+                overflow-x: auto;
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+            }
+
+            .tab-buttons::-webkit-scrollbar {
+                display: none;
+            }
+
+            .template-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: var(--spacing-sm);
+            }
+
+            .template-card {
+                padding: var(--spacing-md);
+                min-height: 100px;
+            }
+
+            .test-buttons {
+                flex-direction: column;
+            }
+
+            .test-buttons .btn {
+                width: 100%;
+            }
+
+            .command-tabs,
+            .framework-tabs {
+                overflow-x: auto;
+                scrollbar-width: none;
+            }
+
+            .progress-steps {
+                gap: var(--spacing-xs);
+            }
+
+            .step-number {
+                width: 28px;
+                height: 28px;
+                font-size: 0.75rem;
+            }
+
+            .step-label {
+                font-size: 0.625rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .template-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .setup-section {
+                padding: var(--spacing-md);
+            }
+
+            .progress-steps {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .progress-step {
+                flex: 0 0 auto;
+                min-width: 60px;
+            }
         }
 
         .alert-success {
