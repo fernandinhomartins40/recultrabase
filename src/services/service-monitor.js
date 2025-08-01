@@ -108,9 +108,24 @@ class ServiceMonitor {
     }
 
     const endpoints = [
-      { name: 'studio', url: `http://localhost:${instance.ports.studio}` },
-      { name: 'kong', url: `http://localhost:${instance.ports.kong}` },
-      { name: 'rest', url: `http://localhost:${instance.ports.kong}/rest/v1/` }
+      { 
+        name: 'studio', 
+        url: `http://localhost:${instance.ports.studio}`,
+        method: 'GET',
+        expectedStatuses: [200, 401, 404] // Studio pode retornar 200 ou redirect
+      },
+      { 
+        name: 'kong', 
+        url: `http://localhost:${instance.ports.kong}`,
+        method: 'GET',
+        expectedStatuses: [200, 404, 405] // Kong gateway pode retornar várias respostas válidas
+      },
+      { 
+        name: 'rest', 
+        url: `http://localhost:${instance.ports.kong}/rest/v1/`,
+        method: 'GET', 
+        expectedStatuses: [200, 400, 401, 404] // PostgREST pode retornar várias respostas válidas
+      }
     ];
 
     const results = {};
@@ -118,30 +133,43 @@ class ServiceMonitor {
     for (const endpoint of endpoints) {
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        const timeoutId = setTimeout(() => controller.abort(), 3000); // Reduzido para 3s
         
         const startTime = Date.now();
         const response = await fetch(endpoint.url, {
           signal: controller.signal,
-          method: 'HEAD'
+          method: endpoint.method,
+          headers: {
+            'User-Agent': 'UltraBase-Health-Monitor/1.0'
+          }
         });
         const responseTime = Date.now() - startTime;
         
         clearTimeout(timeoutId);
         
+        // Verifica se o status está na lista de status esperados para este endpoint
+        const isHealthy = endpoint.expectedStatuses.includes(response.status);
+        
         results[endpoint.name] = {
           status: response.status,
-          healthy: response.status < 500,
+          healthy: isHealthy,
           responseTime: responseTime,
-          url: endpoint.url
+          url: endpoint.url,
+          expectedStatuses: endpoint.expectedStatuses
         };
         
       } catch (error) {
+        // Verifica se é erro de conexão recusada (serviço pode estar parado)
+        const isConnectionError = error.message.includes('ECONNREFUSED') || 
+                                 error.message.includes('fetch failed') ||
+                                 error.name === 'AbortError';
+        
         results[endpoint.name] = { 
-          status: 'error', 
+          status: isConnectionError ? 'connection_refused' : 'error',
           healthy: false, 
           error: error.message,
-          url: endpoint.url
+          url: endpoint.url,
+          errorType: isConnectionError ? 'connection' : 'other'
         };
       }
     }

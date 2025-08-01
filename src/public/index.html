@@ -1382,7 +1382,7 @@
 
         /* Loading States */
         .loading-section {
-            display: none;
+            display: block;
             text-align: center;
             padding: 3rem 1rem;
             color: hsl(var(--muted-foreground));
@@ -1401,6 +1401,44 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+
+        /* Health Progress Bar */
+        .health-progress-container {
+            margin-top: 1.5rem;
+            width: 100%;
+            max-width: 300px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .health-progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: hsl(var(--border));
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .health-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, hsl(var(--brand-primary)), hsl(var(--success)));
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.3s ease;
+            animation: progress-pulse 1.5s ease-in-out infinite;
+        }
+
+        .health-progress-status {
+            font-size: 0.875rem;
+            color: hsl(var(--muted-foreground));
+            text-align: center;
+        }
+
+        @keyframes progress-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
         }
 
         /* Empty State */
@@ -5355,11 +5393,17 @@ console.log(result);`;
             backdrop.classList.add('visible');
             drawer.classList.add('open');
 
-            // Inicializar conteúdo como loading
+            // Inicializar conteúdo como loading com barra de progresso
             content.innerHTML = `
                 <div class="loading-section">
                     <div class="spinner"></div>
                     <p>Verificando saúde da instância...</p>
+                    <div class="health-progress-container">
+                        <div class="health-progress-bar">
+                            <div class="health-progress-fill" id="health-progress-fill"></div>
+                        </div>
+                        <div class="health-progress-status" id="health-progress-status">Iniciando verificação...</div>
+                    </div>
                 </div>
             `;
 
@@ -5376,12 +5420,42 @@ console.log(result);`;
 
         async function loadInstanceHealth(instanceId) {
             const content = document.getElementById('instance-health-content');
+            const progressFill = document.getElementById('health-progress-fill');
+            const progressStatus = document.getElementById('health-progress-status');
             
             try {
                 console.log(`🔍 Carregando saúde da instância ${instanceId}`);
                 
+                // Simular progresso das verificações
+                if (progressFill && progressStatus) {
+                    // Etapa 1: Verificando containers
+                    progressStatus.textContent = 'Verificando containers Docker...';
+                    progressFill.style.width = '25%';
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                    
+                    // Etapa 2: Verificando endpoints
+                    progressStatus.textContent = 'Testando endpoints de serviços...';
+                    progressFill.style.width = '50%';
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                    
+                    // Etapa 3: Verificando database
+                    progressStatus.textContent = 'Conectando ao banco de dados...';
+                    progressFill.style.width = '75%';
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                    
+                    // Etapa 4: Finalizando
+                    progressStatus.textContent = 'Calculando score de saúde...';
+                    progressFill.style.width = '90%';
+                }
+                
                 const response = await fetch(`/api/instances/${instanceId}/health`);
                 const data = await response.json();
+                
+                if (progressFill && progressStatus) {
+                    progressStatus.textContent = 'Carregamento concluído!';
+                    progressFill.style.width = '100%';
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                }
                 
                 if (response.ok && data.success) {
                     renderInstanceHealth(data.health);
@@ -5470,10 +5544,44 @@ console.log(result);`;
                         <i data-lucide="refresh-cw" class="lucide lucide-sm"></i>
                         Verificar Novamente
                     </button>
-                    <button onclick="restartInstanceServices()" class="btn btn-warning">
+                    <button id="restart-services-btn" onclick="restartInstanceServices()" class="btn btn-warning">
                         <i data-lucide="rotate-ccw" class="lucide lucide-sm"></i>
                         Reiniciar Serviços
                     </button>
+                </div>
+
+                <!-- Barra de Progresso para Reinicialização -->
+                <div id="restart-progress-container" class="restart-progress-container" style="display: none;">
+                    <div class="progress-header">
+                        <h5>Reinicializando Serviços</h5>
+                        <div class="progress-percentage" id="restart-progress-percentage">0%</div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="restart-progress-fill"></div>
+                    </div>
+                    <div class="progress-message" id="restart-progress-message">Iniciando reinicialização...</div>
+                    <div class="progress-steps">
+                        <div class="progress-step" id="restart-step-db">
+                            <div class="step-icon"><i data-lucide="database" class="lucide"></i></div>
+                            <span>Database</span>
+                        </div>
+                        <div class="progress-step" id="restart-step-kong">
+                            <div class="step-icon"><i data-lucide="globe" class="lucide"></i></div>
+                            <span>Kong</span>
+                        </div>
+                        <div class="progress-step" id="restart-step-auth">
+                            <div class="step-icon"><i data-lucide="shield" class="lucide"></i></div>
+                            <span>Auth</span>
+                        </div>
+                        <div class="progress-step" id="restart-step-rest">
+                            <div class="step-icon"><i data-lucide="server" class="lucide"></i></div>
+                            <span>REST</span>
+                        </div>
+                        <div class="progress-step" id="restart-step-studio">
+                            <div class="step-icon"><i data-lucide="monitor" class="lucide"></i></div>
+                            <span>Studio</span>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="quick-actions">
@@ -5528,7 +5636,24 @@ console.log(result);`;
             }
 
             try {
-                showAlert('🔄 Reiniciando serviços... Aguarde...', 'info');
+                // Mostrar barra de progresso
+                showRestartProgress();
+                
+                // Simular progresso sequencial dos serviços
+                const services = ['db', 'kong', 'auth', 'rest', 'studio'];
+                let currentService = 0;
+                
+                const progressInterval = setInterval(() => {
+                    if (currentService < services.length) {
+                        updateRestartProgress(
+                            services[currentService],
+                            'active',
+                            (currentService / services.length) * 80, // 80% durante o processo
+                            `Reiniciando ${getServiceDisplayName(services[currentService])}...`
+                        );
+                        currentService++;
+                    }
+                }, 1500); // 1.5s por serviço
                 
                 const response = await fetch(`/api/instances/${currentHealthInstanceId}/restart-services`, {
                     method: 'POST',
@@ -5536,17 +5661,136 @@ console.log(result);`;
                     body: JSON.stringify({ forceAll: false })
                 });
                 
+                clearInterval(progressInterval);
+                
                 const result = await response.json();
                 
                 if (response.ok && result.success) {
-                    showAlert('✅ Serviços reiniciados com sucesso!', 'success');
-                    setTimeout(() => refreshInstanceHealth(), 2000);
+                    // Completar todos os serviços
+                    services.forEach(service => {
+                        updateRestartProgress(service, 'completed', 100, 'Reinicialização concluída com sucesso!');
+                    });
+                    
+                    setTimeout(() => {
+                        hideRestartProgress();
+                        showAlert('✅ Serviços reiniciados com sucesso!', 'success');
+                        refreshInstanceHealth();
+                    }, 1000);
                 } else {
                     throw new Error(result.error || 'Erro ao reiniciar serviços');
                 }
             } catch (error) {
                 console.error('Erro ao reiniciar serviços:', error);
-                showAlert(`❌ Erro ao reiniciar serviços: ${error.message}`, 'error');
+                
+                // Marcar como erro
+                const services = ['db', 'kong', 'auth', 'rest', 'studio'];
+                services.forEach(service => {
+                    updateRestartProgress(service, 'error', 0, `Erro: ${error.message}`);
+                });
+                
+                setTimeout(() => {
+                    hideRestartProgress();
+                    showAlert(`❌ Erro ao reiniciar serviços: ${error.message}`, 'error');
+                }, 2000);
+            }
+        }
+
+        // Funções de controle da barra de progresso
+        function showRestartProgress() {
+            const container = document.getElementById('restart-progress-container');
+            const button = document.getElementById('restart-services-btn');
+            
+            if (container) {
+                container.style.display = 'block';
+                
+                // Reset dos estados
+                const services = ['db', 'kong', 'auth', 'rest', 'studio'];
+                services.forEach(service => {
+                    const step = document.getElementById(`restart-step-${service}`);
+                    if (step) {
+                        step.className = 'progress-step';
+                    }
+                });
+                
+                updateRestartProgress(null, null, 0, 'Iniciando reinicialização...');
+            }
+            
+            if (button) {
+                button.disabled = true;
+                button.innerHTML = '<i data-lucide="loader-2" class="lucide lucide-sm animate-spin"></i> Reiniciando...';
+            }
+            
+            // Recriar ícones
+            setTimeout(() => {
+                if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                    lucide.createIcons();
+                }
+            }, 100);
+        }
+
+        function hideRestartProgress() {
+            const container = document.getElementById('restart-progress-container');
+            const button = document.getElementById('restart-services-btn');
+            
+            if (container) {
+                container.style.display = 'none';
+            }
+            
+            if (button) {
+                button.disabled = false;
+                button.innerHTML = '<i data-lucide="rotate-ccw" class="lucide lucide-sm"></i> Reiniciar Serviços';
+            }
+            
+            // Recriar ícones
+            setTimeout(() => {
+                if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                    lucide.createIcons();
+                }
+            }, 100);
+        }
+
+        function updateRestartProgress(service, status, percentage, message) {
+            // Atualizar barra de progresso
+            const progressFill = document.getElementById('restart-progress-fill');
+            const progressPercentage = document.getElementById('restart-progress-percentage');
+            const progressMessage = document.getElementById('restart-progress-message');
+            
+            if (progressFill) {
+                progressFill.style.width = `${percentage}%`;
+            }
+            
+            if (progressPercentage) {
+                progressPercentage.textContent = `${Math.round(percentage)}%`;
+            }
+            
+            if (progressMessage && message) {
+                progressMessage.textContent = message;
+            }
+            
+            // Atualizar estado do serviço específico
+            if (service && status) {
+                const step = document.getElementById(`restart-step-${service}`);
+                if (step) {
+                    // Remover estados anteriores
+                    step.classList.remove('active', 'completed', 'error');
+                    
+                    // Marcar serviço anterior como concluído
+                    const services = ['db', 'kong', 'auth', 'rest', 'studio'];
+                    const currentIndex = services.indexOf(service);
+                    
+                    for (let i = 0; i < currentIndex; i++) {
+                        const prevStep = document.getElementById(`restart-step-${services[i]}`);
+                        if (prevStep) {
+                            prevStep.classList.remove('active', 'error');
+                            prevStep.classList.add('completed');
+                        }
+                    }
+                    
+                    // Adicionar novo estado
+                    if (status) {
+                        step.classList.add(status);
+                    }
+                }
             }
         }
 
@@ -7371,6 +7615,140 @@ console.log(result);`;
             min-width: auto;
             padding: 0.5rem 0.75rem;
             font-size: 0.8rem;
+        }
+
+        /* Estilos da Barra de Progresso para Reinicialização */
+        .restart-progress-container {
+            background: hsl(var(--card));
+            border: 1px solid hsl(var(--border));
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .progress-header h5 {
+            margin: 0;
+            color: hsl(var(--foreground));
+            font-size: 1rem;
+        }
+
+        .progress-percentage {
+            font-weight: 600;
+            color: hsl(var(--primary));
+            font-size: 1rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: hsl(var(--muted));
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--primary)) 50%, #22c55e);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-message {
+            color: hsl(var(--muted-foreground));
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            padding: 0.5rem;
+        }
+
+        .step-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: hsl(var(--muted));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .step-icon .lucide {
+            width: 16px;
+            height: 16px;
+            color: hsl(var(--muted-foreground));
+        }
+
+        .progress-step span {
+            font-size: 0.8rem;
+            color: hsl(var(--muted-foreground));
+            text-align: center;
+        }
+
+        /* Estados dos passos */
+        .progress-step.active .step-icon {
+            background: hsl(var(--primary));
+            animation: pulse 2s infinite;
+        }
+
+        .progress-step.active .step-icon .lucide {
+            color: white;
+        }
+
+        .progress-step.active span {
+            color: hsl(var(--primary));
+            font-weight: 500;
+        }
+
+        .progress-step.completed .step-icon {
+            background: #22c55e;
+        }
+
+        .progress-step.completed .step-icon .lucide {
+            color: white;
+        }
+
+        .progress-step.completed span {
+            color: #22c55e;
+        }
+
+        .progress-step.error .step-icon {
+            background: hsl(var(--destructive));
+        }
+
+        .progress-step.error .step-icon .lucide {
+            color: white;
+        }
+
+        .progress-step.error span {
+            color: hsl(var(--destructive));
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
     </style>
 
