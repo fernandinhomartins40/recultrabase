@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultrabase - Diagnósticos v2.0</title>
+    <title>Ultrabase - Sistema de Saúde v1.0</title>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="version" content="diagnostics-v2.0-<?php echo time(); ?>">
+    <meta name="version" content="health-v1.0-<?php echo time(); ?>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1086,23 +1086,17 @@
 
         /* IMPORTANTE: Apenas .drawer-content deve ter scroll principal */
         .drawer-content::-webkit-scrollbar,
-        .diagnostic-results-container::-webkit-scrollbar,
-        #diagnostic-results::-webkit-scrollbar,
         .history-container::-webkit-scrollbar {
             width: 6px; /* Mais fino e elegante */
         }
 
         .drawer-content::-webkit-scrollbar-track,
-        .diagnostic-results-container::-webkit-scrollbar-track,
-        #diagnostic-results::-webkit-scrollbar-track,
         .history-container::-webkit-scrollbar-track {
             background: transparent; /* Remove fundo da track */
             border-radius: 3px;
         }
 
         .drawer-content::-webkit-scrollbar-thumb,
-        .diagnostic-results-container::-webkit-scrollbar-thumb,
-        #diagnostic-results::-webkit-scrollbar-thumb,
         .history-container::-webkit-scrollbar-thumb {
             background: hsl(var(--border));
             border-radius: 3px;
@@ -1110,39 +1104,29 @@
         }
 
         .drawer-content::-webkit-scrollbar-thumb:hover,
-        .diagnostic-results-container::-webkit-scrollbar-thumb:hover,
-        #diagnostic-results::-webkit-scrollbar-thumb:hover,
         .history-container::-webkit-scrollbar-thumb:hover {
             background: hsl(var(--muted-foreground));
         }
 
         /* Tema Escuro - Barras de Rolagem */
         .dark .drawer-content::-webkit-scrollbar-thumb,
-        .dark .diagnostic-results-container::-webkit-scrollbar-thumb,
-        .dark #diagnostic-results::-webkit-scrollbar-thumb,
         .dark .history-container::-webkit-scrollbar-thumb {
             background: hsl(var(--border));
         }
 
         .dark .drawer-content::-webkit-scrollbar-thumb:hover,
-        .dark .diagnostic-results-container::-webkit-scrollbar-thumb:hover,
-        .dark #diagnostic-results::-webkit-scrollbar-thumb:hover,
         .dark .history-container::-webkit-scrollbar-thumb:hover {
             background: hsl(var(--muted-foreground));
         }
 
         /* Suporte para Firefox */
         .drawer-content,
-        .diagnostic-results-container,
-        #diagnostic-results,
         .history-container {
             scrollbar-width: thin;
             scrollbar-color: hsl(var(--border)) transparent;
         }
 
         .dark .drawer-content,
-        .dark .diagnostic-results-container,
-        .dark #diagnostic-results,
         .dark .history-container {
             scrollbar-color: hsl(var(--border)) transparent;
         }
@@ -1160,11 +1144,7 @@
         .drawer-content pre,
         .drawer-content code,
         .tab-content pre,
-        .tab-content code,
-        .diagnostic-results-container pre,
-        .diagnostic-results-container code,
-        #diagnostic-results pre,
-        #diagnostic-results code {
+        .tab-content code {
             max-width: 100%;
             overflow-x: auto;
             white-space: pre-wrap;
@@ -1177,9 +1157,7 @@
 
         /* Tabelas Responsivas - Aplicado a todos os elementos relevantes */
         .drawer-content table,
-        .tab-content table,
-        .diagnostic-results-container table,
-        #diagnostic-results table {
+        .tab-content table {
             table-layout: auto; /* Permite melhor adaptação */
             width: 100%;
             max-width: 100%;
@@ -1190,11 +1168,7 @@
         .drawer-content table td,
         .drawer-content table th,
         .tab-content table td,
-        .tab-content table th,
-        .diagnostic-results-container table td,
-        .diagnostic-results-container table th,
-        #diagnostic-results table td,
-        #diagnostic-results table th {
+        .tab-content table th {
             word-wrap: break-word;
             overflow-wrap: break-word;
             padding: var(--spacing-sm);
@@ -1204,9 +1178,7 @@
 
         /* Textos Longos - Aplicado a todos os elementos relevantes */
         .drawer-content .long-text,
-        .tab-content .long-text,
-        .diagnostic-results-container .long-text,
-        #diagnostic-results .long-text {
+        .tab-content .long-text {
             word-wrap: break-word;
             overflow-wrap: break-word;
             hyphens: auto;
@@ -1215,9 +1187,7 @@
 
         /* URLs e Links Longos - Aplicado a todos os elementos relevantes */
         .drawer-content a[href],
-        .tab-content a[href],
-        .diagnostic-results-container a[href],
-        #diagnostic-results a[href] {
+        .tab-content a[href] {
             word-break: break-all;
             overflow-wrap: break-word;
         }
@@ -1244,11 +1214,7 @@
         .dark .drawer-content pre,
         .dark .drawer-content code,
         .dark .tab-content pre,
-        .dark .tab-content code,
-        .dark .diagnostic-results-container pre,
-        .dark .diagnostic-results-container code,
-        .dark #diagnostic-results pre,
-        .dark #diagnostic-results code {
+        .dark .tab-content code {
             background: hsl(var(--card));
             color: hsl(var(--card-foreground));
             border: 1px solid hsl(var(--border));
@@ -1257,11 +1223,7 @@
         .dark .drawer-content table td,
         .dark .drawer-content table th,
         .dark .tab-content table td,
-        .dark .tab-content table th,
-        .dark .diagnostic-results-container table td,
-        .dark .diagnostic-results-container table th,
-        .dark #diagnostic-results table td,
-        .dark #diagnostic-results table th {
+        .dark .tab-content table th {
             border-color: hsl(var(--border));
             background: hsl(var(--card));
         }
@@ -1744,121 +1706,6 @@
             .status-dot.status-error { background: hsl(var(--error)); }
             .status-dot.status-unknown { background: hsl(var(--muted-foreground)); }
 
-            /* Action Cards - COMPLETO e INTUITIVO */
-            .diagnostic-actions-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-                gap: 1rem;
-                margin-bottom: 2rem;
-            }
-
-            .action-card {
-                background: hsl(var(--card));
-                border: 1px solid hsl(var(--border));
-                border-radius: 12px;
-                padding: 1.5rem;
-                transition: all 0.2s ease;
-                position: relative;
-                overflow: hidden;
-            }
-
-            .action-card:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-                border-color: hsl(var(--brand-primary));
-            }
-
-            .action-card.primary { border-left: 4px solid hsl(var(--brand-primary)); }
-            .action-card.secondary { border-left: 4px solid hsl(var(--muted-foreground)); }
-            .action-card.warning { border-left: 4px solid hsl(var(--warning)); }
-
-            .action-header {
-                display: flex;
-                align-items: center;
-                gap: 1rem;
-                margin-bottom: 1.5rem;
-            }
-
-            .action-header .lucide {
-                width: 24px;
-                height: 24px;
-                color: hsl(var(--brand-primary));
-            }
-
-            .action-card.warning .action-header .lucide {
-                color: hsl(var(--warning));
-            }
-
-            .action-header h3 {
-                margin: 0;
-                font-size: 1.1rem;
-                font-weight: 600;
-                color: hsl(var(--foreground));
-            }
-
-            .action-card p {
-                color: hsl(var(--muted-foreground));
-                margin-bottom: 1.5rem;
-                font-size: 0.95rem;
-                line-height: 1.5;
-                margin-top: 0.5rem;
-            }
-
-            .btn-block {
-                width: 100%;
-                justify-content: center;
-                gap: 0.75rem;
-                padding: 0.875rem 1.5rem;
-            }
-
-            .btn .lucide {
-                width: 16px;
-                height: 16px;
-            }
-
-            /* Empty State - INTUITIVO */
-            .empty-state {
-                text-align: center;
-                padding: 3rem 1rem;
-                color: hsl(var(--muted-foreground));
-            }
-
-            .empty-state .lucide-lg {
-                width: 48px;
-                height: 48px;
-                margin-bottom: 1rem;
-                opacity: 0.5;
-            }
-
-            .empty-state h3 {
-                margin: 0 0 0.5rem 0;
-                font-size: 1.2rem;
-                font-weight: 500;
-            }
-
-            /* Ajustes específicos para modal de diagnósticos */
-            .tab-content {
-                /* Removido max-height - deixar o drawer-content gerenciar */
-                min-height: 250px;
-            }
-
-            .diagnostic-results-container,
-            #diagnostic-results {
-                max-height: calc(100vh - 16rem);
-                min-height: 200px;
-            }
-
-            .diagnostic-tabs {
-                flex-wrap: wrap;
-                gap: 0.25rem;
-            }
-
-            .tab-btn {
-                flex: 1;
-                min-width: 0;
-                font-size: 0.75rem;
-                padding: 0.5rem 0.25rem;
-            }
         }
 
         /* === SISTEMA DE AUTO-CORREÇÃO === */
@@ -6800,615 +6647,14 @@ console.log(result);`;
         };
     </script>
 
-    <!-- Drawer de Diagnósticos -->
-    <!-- REMOVIDO: Drawer de diagnósticos antigo substituído pelo drawer de saúde -->
-        <div class="drawer-header">
-            <h2 class="drawer-title" id="diagnostic-drawer-title">
-                <i data-lucide="activity" class="lucide"></i>
-                Diagnósticos e Histórico
-            </h2>
-            <button class="close-btn" onclick="closeDiagnosticDrawer()">&times;</button>
-        </div>
-        <div class="drawer-content">
-            
-            <!-- Status da Instância - SEMPRE VISÍVEL -->
-            <div class="instance-status-header">
-                <div class="status-indicator">
-                    <div class="status-dot status-unknown"></div>
-                    <span id="instance-status-text">Verificando status...</span>
-                </div>
-                <button id="refresh-status-btn" class="btn-icon" onclick="quickStatusCheck()" title="Atualizar status">
-                    <i data-lucide="refresh-cw" class="lucide lucide-sm"></i>
-                </button>
-            </div>
-
-            <div class="diagnostic-tabs">
-                <button class="tab-btn active" onclick="switchDiagnosticTab('current')">
-                    <i data-lucide="zap" class="lucide lucide-sm"></i>
-                    Diagnóstico
-                </button>
-                <button class="tab-btn" onclick="switchDiagnosticTab('history')">
-                    <i data-lucide="clock" class="lucide lucide-sm"></i>
-                    Histórico
-                </button>
-                <button class="tab-btn" onclick="switchDiagnosticTab('schedule')">
-                    <i data-lucide="calendar" class="lucide lucide-sm"></i>
-                    Agendamento
-                </button>
-            </div>
-
-            <!-- Aba Diagnóstico Atual -->
-            <div id="diagnostic-current" class="tab-content active">
-                
-                <div class="section-header">
-                    <i data-lucide="zap" class="lucide"></i>
-                    <h3>Ações de Diagnóstico</h3>
-                </div>
-                
-                <!-- Ações Principais - Layout em Cards -->
-                <div class="diagnostic-actions-grid">
-                    <div class="action-card primary">
-                        <div class="action-header">
-                            <i data-lucide="zap" class="lucide"></i>
-                            <h3>Diagnóstico Completo</h3>
-                        </div>
-                        <p>Verifica todos os serviços, containers e conectividade</p>
-                        <button id="run-diagnostic-btn" class="btn btn-primary btn-block" onclick="runDiagnostic()">
-                            <i data-lucide="play" class="lucide lucide-sm"></i>
-                            Executar Agora
-                        </button>
-                    </div>
-
-                    <div class="action-card secondary">
-                        <div class="action-header">
-                            <i data-lucide="clock" class="lucide"></i>
-                            <h3>Último Diagnóstico</h3>
-                        </div>
-                        <p>Visualizar resultados do diagnóstico anterior</p>
-                        <button class="btn btn-secondary btn-block" onclick="loadLastDiagnostic()">
-                            <i data-lucide="eye" class="lucide lucide-sm"></i>
-                            Ver Resultados
-                        </button>
-                    </div>
-
-                    <div class="action-card warning" id="problems-card" style="display: none;">
-                        <div class="action-header">
-                            <i data-lucide="alert-triangle" class="lucide"></i>
-                            <h3>Problemas Detectados</h3>
-                        </div>
-                        <p>Analisar e corrigir problemas encontrados</p>
-                        <button id="analyze-problems-btn" class="btn btn-warning btn-block" onclick="analyzeInstanceProblems()">
-                            <i data-lucide="wrench" class="lucide lucide-sm"></i>
-                            Analisar & Corrigir
-                        </button>
-                    </div>
-                </div>
-
-                <div class="section-divider"></div>
-                
-                <div class="section-header">
-                    <i data-lucide="activity" class="lucide"></i>
-                    <h3>Resultados do Diagnóstico</h3>
-                </div>
-
-                <!-- Resultados do Diagnóstico -->
-                <div id="diagnostic-results" class="diagnostic-results-container">
-                    <div class="empty-state">
-                        <i data-lucide="activity" class="lucide-lg"></i>
-                        <h3>Nenhum diagnóstico executado</h3>
-                        <p class="text-muted">Execute um diagnóstico para ver o status detalhado da instância</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Aba Histórico -->
-            <div id="diagnostic-history" class="tab-content">
-                
-                <div class="section-header">
-                    <i data-lucide="clock" class="lucide"></i>
-                    <h3>Controles de Histórico</h3>
-                </div>
-                
-                <div class="diagnostic-controls">
-                    <label>Mostrar últimas:</label>
-                    <select id="history-limit" onchange="loadDiagnosticHistory()">
-                        <option value="10">10 entradas</option>
-                        <option value="25">25 entradas</option>
-                        <option value="50">50 entradas</option>
-                    </select>
-                    <button class="btn btn-secondary" onclick="loadDiagnosticHistory()">
-                        <i data-lucide="refresh-cw" class="lucide lucide-sm"></i>
-                        Atualizar
-                    </button>
-                </div>
-                
-                <div class="section-divider"></div>
-                
-                <div class="section-header">
-                    <i data-lucide="database" class="lucide"></i>
-                    <h3>Registros de Diagnóstico</h3>
-                </div>
-                
-                <div id="history-results" class="history-container">
-                    <p class="text-muted">Carregando histórico...</p>
-                </div>
-            </div>
-
-            <!-- Aba Agendamento -->
-            <div id="diagnostic-schedule" class="tab-content">
-                
-                <div class="section-header">
-                    <i data-lucide="calendar" class="lucide"></i>
-                    <h3>Configuração de Agendamento</h3>
-                </div>
-                
-                <div class="schedule-config">
-                    <div class="form-group">
-                        <label>Intervalo de Execução:</label>
-                        <select id="schedule-interval">
-                            <option value="15m">A cada 15 minutos</option>
-                            <option value="30m">A cada 30 minutos</option>
-                            <option value="1h">A cada 1 hora</option>
-                            <option value="6h" selected>A cada 6 horas</option>
-                            <option value="12h">A cada 12 horas</option>
-                            <option value="24h">Diariamente</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>
-                            <input type="checkbox" id="schedule-enabled" checked>
-                            Agendamento ativo
-                        </label>
-                    </div>
-                    <div class="form-group">
-                        <label>Descrição:</label>
-                        <input type="text" id="schedule-description" placeholder="Diagnóstico automático agendado">
-                    </div>
-                    <div class="schedule-actions">
-                        <button class="btn btn-primary" onclick="saveScheduleConfig()">
-                            <i data-lucide="save" class="lucide lucide-sm"></i>
-                            Salvar Configuração
-                        </button>
-                        <button class="btn btn-secondary" onclick="generateCronScript()">
-                            <i data-lucide="code" class="lucide lucide-sm"></i>
-                            Gerar Script Cron
-                        </button>
-                        <button class="btn btn-danger" onclick="removeScheduleConfig()">
-                            <i data-lucide="trash-2" class="lucide lucide-sm"></i>
-                            Remover Agendamento
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="section-divider"></div>
-                
-                <div class="section-header">
-                    <i data-lucide="code" class="lucide"></i>
-                    <h3>Script Cron</h3>
-                </div>
-                
-                <div id="cron-output" class="cron-script-container hidden">
-                    <h4>Script Cron Gerado:</h4>
-                    <pre id="cron-script"></pre>
-                    <button class="btn btn-secondary" onclick="copyCronScript()">
-                        <i data-lucide="copy" class="lucide lucide-sm"></i>
-                        Copiar Script
-                    </button>
-                </div>
-            </div>
-
-            <!-- Aba Relatórios -->
-            <div id="diagnostic-reports" class="tab-content">
-                <div class="report-controls">
-                    <label>Período do relatório:</label>
-                    <select id="report-days" onchange="generateHealthReport()">
-                        <option value="7" selected>Últimos 7 dias</option>
-                        <option value="14">Últimos 14 dias</option>
-                        <option value="30">Últimos 30 dias</option>
-                    </select>
-                    <button class="btn btn-primary" onclick="generateHealthReport()">
-                        <i data-lucide="bar-chart-3" class="lucide lucide-sm"></i>
-                        Gerar Relatório
-                    </button>
-                </div>
-                <div id="report-results" class="report-container">
-                    <p class="text-muted">Clique em "Gerar Relatório" para ver as estatísticas de saúde.</p>
-                </div>
-            </div>
-
-        </div>
-        <div class="drawer-actions">
-            <button type="button" class="btn btn-secondary" onclick="closeDiagnosticDrawer()">Fechar</button>
-        </div>
-    </div>
-
-    <style>
-        .diagnostic-tabs {
-            display: flex;
-            border-bottom: 2px solid hsl(var(--border));
-            margin-bottom: 2rem;
-            background: hsl(var(--card));
-            border-radius: 12px 12px 0 0;
-            padding: 0 1rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        .tab-btn {
-            background: none;
-            border: none;
-            padding: 1rem 1.5rem;
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-            color: hsl(var(--muted-foreground));
-            transition: all 0.2s;
-            font-weight: 500;
-            border-radius: 8px 8px 0 0;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .tab-btn .lucide {
-            width: 18px;
-            height: 18px;
-        }
-
-        .tab-btn.active {
-            color: hsl(var(--brand-primary));
-            border-bottom-color: hsl(var(--brand-primary));
-            background: hsl(var(--background));
-            font-weight: 600;
-        }
-
-        .tab-btn:hover:not(.active) {
-            color: hsl(var(--foreground));
-            background: hsl(var(--surface-100) / 0.5);
-        }
-
-        .tab-content {
-            display: none;
-            min-height: 400px;
-            /* Removido: max-height e overflow - deixar o drawer-content gerenciar o scroll */
-            overflow: visible; /* Permite que o conteúdo seja scrollado pelo container pai */
-            padding: 1.5rem;
-            margin-top: 1rem;
-            background: hsl(var(--background));
-            border-radius: 12px;
-            border: 1px solid hsl(var(--border));
-            word-wrap: break-word;
-            box-sizing: border-box;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        /* Divisões visuais claras entre seções */
-        .tab-content > div {
-            margin-bottom: 2rem;
-        }
-
-        .tab-content > div:last-child {
-            margin-bottom: 0;
-        }
-
-        /* Separadores visuais */
-        .section-divider {
-            height: 1px;
-            background: linear-gradient(to right, transparent, hsl(var(--border)), transparent);
-            margin: 2rem 0;
-        }
-
-        .section-header {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 2px solid hsl(var(--border) / 0.3);
-        }
-
-        .section-header h3 {
-            margin: 0;
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: hsl(var(--foreground));
-        }
-
-        .section-header .lucide {
-            color: hsl(var(--brand-primary));
-            width: 20px;
-            height: 20px;
-        }
 
 
-        .diagnostic-controls {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-            align-items: center;
-            padding: 1.5rem;
-            background: hsl(var(--card));
-            border: 1px solid hsl(var(--border));
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        .diagnostic-controls label {
-            font-weight: 500;
-            color: hsl(var(--foreground));
-            margin-right: 0.75rem;
-        }
-
-        .diagnostic-controls select {
-            padding: 0.75rem 1rem;
-            background: hsl(var(--background));
-            border: 1px solid hsl(var(--border));
-            border-radius: 8px;
-            color: hsl(var(--foreground));
-            margin-right: 1rem;
-        }
-
-        .diagnostic-controls .btn {
-            padding: 0.75rem 1.25rem;
-            gap: 0.5rem;
-        }
-
-        .diagnostic-results-container,
-        #diagnostic-results {
-            background: hsl(var(--card));
-            border: 1px solid hsl(var(--border));
-            border-radius: 12px;
-            padding: 2rem;
-            min-height: 300px;
-            max-height: 450px;
-            overflow-y: auto;
-            overflow-x: hidden;
-            word-wrap: break-word;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-top: 1rem;
-            box-sizing: border-box;
-        }
 
 
-        .health-card {
-            background: hsl(var(--card));
-            border: 1px solid hsl(var(--border));
-            border-radius: var(--radius);
-            padding: 0.75rem;
-            margin-bottom: 0.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
 
-        .health-card.healthy {
-            border-left: 4px solid #10b981;
-        }
 
-        .health-card.unhealthy {
-            border-left: 4px solid #ef4444;
-        }
-        
-        .service-actions {
-            margin-top: 0.5rem;
-            display: flex;
-            gap: 0.25rem;
-            flex-wrap: wrap;
-        }
-        
-        .action-btn {
-            padding: 0.25rem 0.5rem;
-            border: 1px solid hsl(var(--border));
-            border-radius: calc(var(--radius) - 2px);
-            background: hsl(var(--background));
-            color: hsl(var(--foreground));
-            font-size: 0.75rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-        
-        .action-btn:hover {
-            background: hsl(var(--accent));
-            color: hsl(var(--accent-foreground));
-        }
-        
-        .action-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .action-restart {
-            border-color: #3b82f6;
-            color: #3b82f6;
-        }
-        
-        .action-restart:hover {
-            background: #3b82f6;
-            color: white;
-        }
-        
-        .action-start {
-            border-color: #10b981;
-            color: #10b981;
-        }
-        
-        .action-start:hover {
-            background: #10b981;
-            color: white;
-        }
-        
-        .action-recreate {
-            border-color: #f59e0b;
-            color: #f59e0b;
-        }
-        
-        .action-recreate:hover {
-            background: #f59e0b;
-            color: white;
-        }
-        
-        .action-logs {
-            border-color: #6b7280;
-            color: #6b7280;
-        }
-        
-        .action-logs:hover {
-            background: #6b7280;
-            color: white;
-        }
-        
-        .logs-modal {
-            max-width: 800px;
-            max-height: 600px;
-        }
-        
-        .logs-content {
-            background: #1a1a1a;
-            color: #e5e5e5;
-            padding: 1rem;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.8rem;
-            line-height: 1.4;
-            max-height: 400px;
-            overflow-y: auto;
-            white-space: pre-wrap;
-            word-break: break-all;
-        }
-        
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-        
-        .modal-content {
-            background: hsl(var(--card));
-            border: 1px solid hsl(var(--border));
-            border-radius: var(--radius);
-            padding: 1.5rem;
-            max-width: 90vw;
-            max-height: 90vh;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid hsl(var(--border));
-        }
-        
-        .modal-body {
-            flex: 1;
-            overflow: auto;
-        }
-        
-        .modal-footer {
-            margin-top: 1rem;
-            padding-top: 0.5rem;
-            border-top: 1px solid hsl(var(--border));
-            display: flex;
-            gap: 0.5rem;
-            justify-content: flex-end;
-        }
-        
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: hsl(var(--muted-foreground));
-        }
-        
-        .close-btn:hover {
-            color: hsl(var(--foreground));
-        }
 
-        .history-container {
-            background: hsl(var(--card));
-            border: 1px solid hsl(var(--border));
-            border-radius: 12px;
-            padding: 2rem;
-            max-height: 450px;
-            min-height: 200px;
-            overflow-y: auto;
-            overflow-x: hidden;
-            word-wrap: break-word;
-            box-sizing: border-box;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
 
-        .history-item {
-            background: hsl(var(--surface-100));
-            border: 1px solid hsl(var(--border));
-            border-radius: var(--radius);
-            padding: 1rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .history-item-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
-        }
-
-        .schedule-config {
-            background: hsl(var(--card));
-            border: 1px solid hsl(var(--border));
-            border-radius: 12px;
-            padding: 2rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        .schedule-config .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .schedule-config .form-group label {
-            display: block;
-            font-weight: 500;
-            color: hsl(var(--foreground));
-            margin-bottom: 0.5rem;
-        }
-
-        .schedule-config select,
-        .schedule-config input {
-            padding: 0.75rem;
-            background: hsl(var(--background));
-            border: 1px solid hsl(var(--border));
-            border-radius: 8px;
-            color: hsl(var(--foreground));
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            font-weight: 500;
-            color: hsl(var(--foreground));
-            margin-bottom: 0.75rem;
-        }
 
         .form-group input,
         .form-group select {
@@ -7437,70 +6683,6 @@ console.log(result);`;
             color: hsl(var(--foreground));
         }
 
-        .schedule-actions {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            margin-top: 2rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid hsl(var(--border));
-        }
-
-        .schedule-actions .btn {
-            flex: 1;
-            min-width: 140px;
-            padding: 0.875rem 1.5rem;
-            gap: 0.75rem;
-        }
-
-        .cron-script-container {
-            background: hsl(var(--card));
-            border: 1px solid hsl(var(--border));
-            border-radius: 12px;
-            padding: 2rem;
-            margin-top: 1rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        .cron-script-container pre {
-            background: hsl(var(--surface-200));
-            padding: 1rem;
-            border-radius: var(--radius);
-            overflow-x: auto;
-            font-family: 'Monaco', 'Cascadia Code', monospace;
-            font-size: 0.875rem;
-        }
-
-        .report-container {
-            background: hsl(var(--surface-100));
-            border: 1px solid hsl(var(--border));
-            border-radius: var(--radius);
-            padding: 1rem;
-            min-height: 300px;
-        }
-
-        .report-controls {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .stat-card {
-            background: hsl(var(--card));
-            border: 1px solid hsl(var(--border));
-            border-radius: var(--radius);
-            padding: 1rem;
-            margin-bottom: 0.5rem;
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 2rem;
-            font-weight: bold;
-            color: hsl(var(--brand-primary));
-        }
 
         .text-muted {
             color: hsl(var(--muted-foreground));
@@ -7753,578 +6935,6 @@ console.log(result);`;
     </style>
 
     <script>
-        let currentDiagnosticInstanceId = null;
-        let currentDiagnosticInstanceName = null;
-
-        // Função para abrir o modal de diagnósticos
-        // REMOVIDO: showDiagnosticPanel substituída por showInstanceHealthPanel
-        function showDiagnosticPanel(instanceId, instanceName) {
-            // Redirecionar para nova função de saúde
-            return showInstanceHealthPanel(instanceId, instanceName);
-        }
-            
-            const drawer = document.getElementById('diagnostic-drawer');
-            const backdrop = document.getElementById('diagnostic-backdrop');
-            const title = document.getElementById('diagnostic-drawer-title');
-            
-            console.log('🔧 DEBUG: Elementos encontrados', { 
-                drawer: !!drawer, 
-                backdrop: !!backdrop, 
-                title: !!title 
-            });
-            
-            if (!drawer || !backdrop || !title) {
-                console.error('❌ DEBUG: Elementos do diagnóstico não encontrados!');
-                return;
-            }
-            
-            title.innerHTML = `<i data-lucide="activity" class="lucide"></i> Diagnósticos - ${instanceName}`;
-            
-            backdrop.classList.add('visible');
-            drawer.classList.add('open');
-            
-            console.log('🔧 DEBUG: Classes adicionadas, drawer deve estar visível');
-            
-            // Carregar configuração de agendamento existente
-            try {
-                loadScheduleConfig();
-            } catch (error) {
-                console.error('❌ DEBUG: Erro em loadScheduleConfig:', error);
-            }
-            
-            // Re-render icons
-            try {
-                updateDrawerIcons();
-            } catch (error) {
-                console.error('❌ DEBUG: Erro em updateDrawerIcons:', error);
-            }
-            
-            // Executar verificação rápida de status automaticamente
-            setTimeout(() => {
-                quickStatusCheck();
-            }, 500);
-        }
-
-        // Função para fechar o drawer
-        function closeDiagnosticDrawer() {
-            document.getElementById('diagnostic-drawer').classList.remove('open');
-            document.getElementById('diagnostic-backdrop').classList.remove('visible');
-            currentDiagnosticInstanceId = null;
-            currentDiagnosticInstanceName = null;
-        }
-
-        // Função para verificação rápida de status - NOVA
-        async function quickStatusCheck() {
-            if (!currentDiagnosticInstanceId) return;
-            
-            const statusDot = document.querySelector('.status-dot');
-            const statusText = document.getElementById('instance-status-text');
-            const refreshBtn = document.getElementById('refresh-status-btn');
-            
-            console.log('🔧 DEBUG: quickStatusCheck iniciado');
-            
-            // Animação de loading
-            refreshBtn.style.opacity = '0.5';
-            statusText.textContent = 'Verificando...';
-            statusDot.className = 'status-dot status-unknown';
-            
-            try {
-                const response = await fetch(`/api/instances/${currentDiagnosticInstanceId}/quick-health`);
-                const data = await response.json();
-                
-                console.log('🔧 DEBUG: Status recebido:', data);
-                
-                if (data.success && data.healthy) {
-                    statusDot.className = 'status-dot status-healthy';
-                    statusText.textContent = 'Instância saudável ✅';
-                } else {
-                    statusDot.className = 'status-dot status-warning';
-                    statusText.textContent = 'Problemas detectados ⚠️';
-                    
-                    // Mostrar card de problemas
-                    const problemsCard = document.getElementById('problems-card');
-                    if (problemsCard) {
-                        problemsCard.style.display = 'block';
-                    }
-                }
-            } catch (error) {
-                console.error('❌ DEBUG: Erro no status check:', error);
-                statusDot.className = 'status-dot status-error';
-                statusText.textContent = 'Erro na verificação ❌';
-            } finally {
-                refreshBtn.style.opacity = '1';
-            }
-        }
-
-        // Função para trocar abas
-        function switchDiagnosticTab(tabName) {
-            // Remover classe active de todas as abas
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            
-            // Ativar aba selecionada (encontrar o botão correto)
-            const activeBtn = document.querySelector(`.tab-btn[onclick*="${tabName}"]`);
-            if (activeBtn) {
-                activeBtn.classList.add('active');
-            }
-            document.getElementById(`diagnostic-${tabName}`).classList.add('active');
-            
-            // Carregar dados específicos da aba
-            if (tabName === 'history') {
-                loadDiagnosticHistory();
-            } else if (tabName === 'reports') {
-                generateHealthReport();
-            }
-        }
-
-        // Função para executar diagnóstico
-        async function runDiagnostic() {
-            const btn = document.getElementById('run-diagnostic-btn');
-            const originalText = btn.innerHTML;
-            
-            btn.disabled = true;
-            btn.innerHTML = '<i data-lucide="loader" class="lucide lucide-sm rotating"></i> Executando...';
-            
-            try {
-                const response = await fetch(`/api/instances/${currentDiagnosticInstanceId}/run-diagnostics`);
-                const data = await response.json();
-                
-                if (data.success) {
-                    renderDiagnosticResults(data.diagnostic);
-                    showAlert('Diagnóstico executado com sucesso', 'success');
-                } else {
-                    showAlert('Falha no diagnóstico', 'error');
-                }
-            } catch (error) {
-                console.error('Erro no diagnóstico:', error);
-                showAlert('Erro no diagnóstico: ' + error.message, 'error');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-                lucide.createIcons();
-            }
-        }
-
-        // Função para carregar último diagnóstico
-        async function loadLastDiagnostic() {
-            try {
-                const response = await fetch(`/api/instances/${currentDiagnosticInstanceId}/last-diagnostic`);
-                const data = await response.json();
-                
-                if (data.success && data.diagnostic) {
-                    renderDiagnosticResults(data.diagnostic);
-                } else {
-                    document.getElementById('diagnostic-results').innerHTML = '<p class="text-muted">Nenhum diagnóstico recente encontrado. Execute um novo diagnóstico.</p>';
-                }
-            } catch (error) {
-                console.error('Erro ao carregar diagnóstico:', error);
-                document.getElementById('diagnostic-results').innerHTML = '<p class="text-muted">Erro ao carregar diagnóstico.</p>';
-            }
-        }
-
-        // Função para renderizar resultados do diagnóstico
-        function renderDiagnosticResults(diagnostic) {
-            const container = document.getElementById('diagnostic-results');
-            const timestamp = new Date(diagnostic.timestamp).toLocaleString('pt-BR');
-            
-            let html = `
-                <div class="diagnostic-header">
-                    <h4>Diagnóstico executado em: ${timestamp}</h4>
-                    <div class="overall-status ${diagnostic.overall_healthy ? 'healthy' : 'unhealthy'}">
-                        ${diagnostic.overall_healthy ? '✅ Sistema Saudável' : '❌ Problemas Detectados'}
-                    </div>
-                </div>
-                <div class="health-cards">
-            `;
-
-            if (diagnostic.results) {
-                Object.entries(diagnostic.results).forEach(([service, result]) => {
-                    const status = result.healthy ? 'healthy' : 'unhealthy';
-                    const icon = result.healthy ? '✅' : '❌';
-                    
-                    // Determinar ações disponíveis baseado no status
-                    let actions = [];
-                    let statusMessage = result.statusMessage || result.status || 'Estado Desconhecido';
-                    
-                    if (result.actions && result.actions.length > 0) {
-                        actions = result.actions;
-                    } else {
-                        // Fallback para ações baseadas no status
-                        if (!result.healthy && result.status !== 'not_found') {
-                            actions = ['restart', 'logs'];
-                        } else if (result.status === 'not_found') {
-                            actions = ['recreate'];
-                        } else if (result.healthy) {
-                            actions = ['logs'];
-                        }
-                    }
-                    
-                    // Gerar botões de ação
-                    const actionButtons = actions.map(action => {
-                        const actionConfig = {
-                            'restart': { label: 'Reiniciar', class: 'action-restart', icon: '🔄' },
-                            'start': { label: 'Iniciar', class: 'action-start', icon: '▶️' },
-                            'logs': { label: 'Ver Logs', class: 'action-logs', icon: '📄' },
-                            'recreate': { label: 'Recriar', class: 'action-recreate', icon: '🏗️' },
-                            'clear_logs': { label: 'Limpar Logs', class: 'action-clear', icon: '🧹' }
-                        };
-                        
-                        const config = actionConfig[action] || { label: action, class: 'action-generic', icon: '🔧' };
-                        
-                        return `<button class="action-btn ${config.class}" 
-                                       onclick="executeDiagnosticAction(event, '${currentDiagnosticInstanceId}', '${action}', '${service}')"
-                                       title="${config.label}">
-                                    ${config.icon} ${config.label}
-                                </button>`;
-                    }).join('');
-                    
-                    html += `
-                        <div class="health-card ${status}">
-                            <div class="service-info">
-                                <div class="service-name">${icon} ${service.replace('_', ' ').toUpperCase()}</div>
-                                <div class="service-status">${statusMessage}</div>
-                                ${result.issues && result.issues.length > 0 ? 
-                                    `<div class="issues">Problemas: ${result.issues.join(', ')}</div>` : ''}
-                                ${actionButtons ? `<div class="service-actions">${actionButtons}</div>` : ''}
-                            </div>
-                        </div>
-                    `;
-                });
-            }
-
-            html += '</div>';
-            container.innerHTML = html;
-            
-            // Mostrar botão de análise se há problemas
-            const analyzeBtn = document.getElementById('analyze-problems-btn');
-            if (!diagnostic.overall_healthy) {
-                analyzeBtn.style.display = 'inline-flex';
-            } else {
-                analyzeBtn.style.display = 'none';
-            }
-        }
-
-        // Função para carregar histórico de diagnósticos
-        async function loadDiagnosticHistory() {
-            const limit = document.getElementById('history-limit').value || 10;
-            const container = document.getElementById('history-results');
-            
-            container.innerHTML = '<p class="text-muted">Carregando histórico...</p>';
-            
-            try {
-                const response = await fetch(`/api/instances/${currentDiagnosticInstanceId}/diagnostic-history?limit=${limit}`);
-                const data = await response.json();
-                
-                if (data.success && data.history.length > 0) {
-                    let html = '';
-                    
-                    data.history.forEach(diagnostic => {
-                        const timestamp = new Date(diagnostic.timestamp).toLocaleString('pt-BR');
-                        const healthyServices = Object.values(diagnostic.results || {}).filter(r => r.healthy).length;
-                        const totalServices = Object.keys(diagnostic.results || {}).length;
-                        
-                        html += `
-                            <div class="history-item">
-                                <div class="history-item-header">
-                                    <span class="timestamp">${timestamp}</span>
-                                    <span class="health-summary">${healthyServices}/${totalServices} serviços saudáveis</span>
-                                </div>
-                                <div class="diagnostic-summary">
-                                    ${diagnostic.overall_healthy ? '✅ Sistema Saudável' : '❌ Problemas Detectados'}
-                                </div>
-                            </div>
-                        `;
-                    });
-                    
-                    container.innerHTML = html;
-                } else {
-                    container.innerHTML = '<p class="text-muted">Nenhum histórico de diagnósticos encontrado.</p>';
-                }
-            } catch (error) {
-                console.error('Erro ao carregar histórico:', error);
-                container.innerHTML = '<p class="text-muted">Erro ao carregar histórico.</p>';
-            }
-        }
-
-        // Funções de agendamento
-        async function loadScheduleConfig() {
-            try {
-                const response = await fetch(`/api/instances/${currentDiagnosticInstanceId}/schedule-diagnostics`);
-                const data = await response.json();
-                
-                if (data.success && data.config) {
-                    document.getElementById('schedule-interval').value = data.config.interval;
-                    document.getElementById('schedule-enabled').checked = data.config.enabled;
-                    document.getElementById('schedule-description').value = data.config.description;
-                }
-            } catch (error) {
-                console.error('Erro ao carregar configuração de agendamento:', error);
-            }
-        }
-
-        async function saveScheduleConfig() {
-            const config = {
-                interval: document.getElementById('schedule-interval').value,
-                enabled: document.getElementById('schedule-enabled').checked,
-                description: document.getElementById('schedule-description').value
-            };
-            
-            try {
-                const response = await fetch(`/api/instances/${currentDiagnosticInstanceId}/schedule-diagnostics`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(config)
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    showAlert('Configuração de agendamento salva com sucesso', 'success');
-                } else {
-                    showAlert('Erro ao salvar configuração', 'error');
-                }
-            } catch (error) {
-                console.error('Erro ao salvar configuração:', error);
-                showAlert('Erro ao salvar configuração', 'error');
-            }
-        }
-
-        // Função para executar ações diagnósticas
-        async function executeDiagnosticAction(event, instanceId, action, target) {
-            let button = null;
-            let originalText = '';
-            
-            try {
-                // Mapear ações para API
-                const actionMap = {
-                    'restart': 'restart_container',
-                    'start': 'start_container', 
-                    'recreate': 'recreate_service',
-                    'logs': 'get_logs',
-                    'clear_logs': 'clear_logs'
-                };
-                
-                const apiAction = actionMap[action] || action;
-                
-                // Mostrar confirmação para ações críticas
-                const riskyActions = ['recreate', 'restart_instance'];
-                if (riskyActions.includes(action)) {
-                    if (!confirm(`Tem certeza que deseja ${action === 'recreate' ? 'recriar' : 'reiniciar'} este serviço? Esta ação pode causar indisponibilidade temporária.`)) {
-                        return;
-                    }
-                }
-                
-                // Mostrar loading se event e target estiverem disponíveis
-                if (event && event.target) {
-                    button = event.target;
-                    originalText = button.innerHTML;
-                    button.innerHTML = '⏳ Executando...';
-                    button.disabled = true;
-                }
-                
-                const response = await fetch(`/api/instances/${instanceId}/diagnostic-action`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: apiAction,
-                        target: target,
-                        confirmation: riskyActions.includes(action)
-                    })
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    showAlert(data.message, 'success');
-                    
-                    // Se for logs, mostrar em modal
-                    if (action === 'logs' && data.logs) {
-                        showLogsModal(target, data.logs);
-                    } else {
-                        // Re-executar diagnóstico para atualizar status
-                        setTimeout(() => {
-                            runDiagnostic();
-                        }, 2000);
-                    }
-                } else {
-                    showAlert(data.error || 'Erro ao executar ação', 'error');
-                }
-                
-            } catch (error) {
-                console.error('Erro ao executar ação:', error);
-                showAlert('Erro ao executar ação', 'error');
-            } finally {
-                // Restaurar botão
-                if (button) {
-                    button.innerHTML = originalText;
-                    button.disabled = false;
-                }
-            }
-        }
-        
-        // Mostrar logs em modal
-        function showLogsModal(containerName, logs) {
-            const modal = document.createElement('div');
-            modal.className = 'modal-overlay';
-            modal.innerHTML = `
-                <div class="modal-content logs-modal">
-                    <div class="modal-header">
-                        <h3>📄 Logs - ${containerName}</h3>
-                        <button onclick="this.closest('.modal-overlay').remove()" class="close-btn">×</button>
-                    </div>
-                    <div class="modal-body">
-                        <pre class="logs-content">${logs}</pre>
-                    </div>
-                    <div class="modal-footer">
-                        <button onclick="this.closest('.modal-overlay').remove()" class="btn btn-secondary">Fechar</button>
-                        <button onclick="copyTextToClipboard(\`${logs}\`); showAlert('Logs copiados!', 'success')" class="btn btn-primary">Copiar</button>
-                    </div>
-                </div>
-            `;
-            
-            document.body.appendChild(modal);
-        }
-        
-        // Função auxiliar para copiar texto para clipboard (versão simplificada)
-        function copyTextToClipboard(text) {
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(text).catch(err => {
-                    console.error('Erro ao copiar:', err);
-                    showAlert('❌ Erro ao copiar texto', 'error');
-                });
-            } else {
-                // Fallback para navegadores mais antigos
-                fallbackCopyToClipboard(text);
-            }
-        }
-
-        async function generateCronScript() {
-            try {
-                const response = await fetch(`/api/instances/${currentDiagnosticInstanceId}/cron-script`);
-                const data = await response.json();
-                
-                if (data.success) {
-                    document.getElementById('cron-script').textContent = data.script;
-                    document.getElementById('cron-output').classList.remove('hidden');
-                } else {
-                    showAlert('Erro ao gerar script cron', 'error');
-                }
-            } catch (error) {
-                console.error('Erro ao gerar script cron:', error);
-                showAlert('Erro ao gerar script cron', 'error');
-            }
-        }
-
-        function copyCronScript() {
-            const script = document.getElementById('cron-script').textContent;
-            copyToClipboard(script);
-        }
-
-        async function removeScheduleConfig() {
-            if (!confirm('Confirma a remoção da configuração de agendamento?')) return;
-            
-            try {
-                const response = await fetch(`/api/instances/${currentDiagnosticInstanceId}/schedule-diagnostics`, {
-                    method: 'DELETE'
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    // Limpar formulário
-                    document.getElementById('schedule-interval').value = '6h';
-                    document.getElementById('schedule-enabled').checked = true;
-                    document.getElementById('schedule-description').value = '';
-                    document.getElementById('cron-output').classList.add('hidden');
-                    
-                    showAlert('Configuração de agendamento removida', 'success');
-                } else {
-                    showAlert('Erro ao remover configuração', 'error');
-                }
-            } catch (error) {
-                console.error('Erro ao remover configuração:', error);
-                showAlert('Erro ao remover configuração', 'error');
-            }
-        }
-
-        // Função para gerar relatório de saúde
-        async function generateHealthReport() {
-            const days = document.getElementById('report-days').value || 7;
-            const container = document.getElementById('report-results');
-            
-            container.innerHTML = '<p class="text-muted">Gerando relatório...</p>';
-            
-            try {
-                const response = await fetch(`/api/instances/${currentDiagnosticInstanceId}/health-report?days=${days}`);
-                const data = await response.json();
-                
-                if (data.success) {
-                    renderHealthReport(data.report);
-                } else {
-                    container.innerHTML = '<p class="text-muted">Erro ao gerar relatório.</p>';
-                }
-            } catch (error) {
-                console.error('Erro ao gerar relatório:', error);
-                container.innerHTML = '<p class="text-muted">Erro ao gerar relatório.</p>';
-            }
-        }
-
-        function renderHealthReport(report) {
-            const container = document.getElementById('report-results');
-            
-            let html = `
-                <div class="report-header">
-                    <h4>Relatório de Saúde - ${report.period_days} dias</h4>
-                    <p class="text-muted">Período: ${report.period_days} dias | Total de diagnósticos: ${report.total_diagnostics}</p>
-                </div>
-                
-                <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0;">
-                    <div class="stat-card">
-                        <div class="stat-value">${report.uptime_percentage.uptime}%</div>
-                        <div>Uptime</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">${report.total_diagnostics}</div>
-                        <div>Total Diagnósticos</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">${report.health_trend.current_score}%</div>
-                        <div>Score Atual</div>
-                    </div>
-                </div>
-            `;
-            
-            if (report.most_common_issues && report.most_common_issues.length > 0) {
-                html += `
-                    <div class="issues-section">
-                        <h4>Problemas Mais Comuns:</h4>
-                        <ul>
-                `;
-                
-                report.most_common_issues.forEach(issue => {
-                    html += `<li>${issue.issue} (${issue.count}x)</li>`;
-                });
-                
-                html += `
-                        </ul>
-                    </div>
-                `;
-            }
-            
-            html += `
-                <div class="trend-section">
-                    <h4>Tendência de Saúde:</h4>
-                    <p class="trend-${report.health_trend.trend}">
-                        ${report.health_trend.trend === 'improving' ? '📈 Melhorando' : 
-                          report.health_trend.trend === 'declining' ? '📉 Piorando' : '➡️ Estável'}
-                        (${report.health_trend.change > 0 ? '+' : ''}${report.health_trend.change}%)
-                    </p>
-                </div>
-            `;
-            
-            container.innerHTML = html;
-        }
-
         // === SISTEMA DE AUTO-CORREÇÃO ===
 
         // Variável global para armazenar análise de problemas
@@ -8339,7 +6949,7 @@ console.log(result);`;
             btn.innerHTML = '<i data-lucide="loader" class="lucide lucide-sm rotating"></i> Analisando...';
             
             try {
-                const response = await fetch(`/api/instances/${currentDiagnosticInstanceId}/repair-analysis`);
+                const response = await fetch(`/api/instances/${currentHealthInstanceId}/repair-analysis`);
                 const data = await response.json();
                 
                 if (data.success) {
@@ -8540,9 +7150,9 @@ console.log(result);`;
                     
                     showAlert('Correção executada com sucesso!', 'success');
                     
-                    // Executar novo diagnóstico após correção
+                    // Atualizar estado de saúde após correção
                     setTimeout(() => {
-                        runDiagnostic();
+                        loadInstanceHealth(currentHealthInstanceId);
                     }, 2000);
                     
                 } else {
