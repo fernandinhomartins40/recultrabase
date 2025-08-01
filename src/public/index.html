@@ -3527,7 +3527,9 @@
             }
             
             try {
-                const response = await fetch(`/api/instances/${projectId}/cursor-config`);
+                const response = await fetch(`/api/instances/${projectId}/cursor-config`, {
+                    headers: authManager.getAuthHeaders()
+                });
                 const config = await response.json();
                 
                 if (response.ok) {
@@ -3938,7 +3940,9 @@ console.log(result);</pre>
         // Copy .env configuration
         async function copyEnvConfig(projectId) {
             try {
-                const response = await fetch(`/api/instances/${projectId}/env-config`);
+                const response = await fetch(`/api/instances/${projectId}/env-config`, {
+                    headers: authManager.getAuthHeaders()
+                });
                 const config = await response.json();
                 
                 if (response.ok) {
@@ -5064,7 +5068,9 @@ volumes:
             resultsDiv.innerHTML = '<div class="loading-section"><div class="spinner"></div><p>Testando conexão...</p></div>';
             
             try {
-                const response = await fetch(`/api/instances/${projectId}/test-connection`);
+                const response = await fetch(`/api/instances/${projectId}/test-connection`, {
+                    headers: authManager.getAuthHeaders()
+                });
                 const result = await response.json();
                 
                 if (response.ok) {
@@ -5096,7 +5102,9 @@ volumes:
             resultsDiv.innerHTML = '<div class="loading-section"><div class="spinner"></div><p>Executando teste rápido...</p></div>';
             
             try {
-                const response = await fetch(`/api/instances/${projectId}/quick-test`);
+                const response = await fetch(`/api/instances/${projectId}/quick-test`, {
+                    headers: authManager.getAuthHeaders()
+                });
                 const result = await response.json();
                 
                 if (response.ok) {
@@ -6139,10 +6147,7 @@ console.log(result);`;
             try {
                 const response = await fetch(`/api/instances/${currentInstanceForCredentials.id}/change-credentials`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authManager.token}`
-                    },
+                    headers: authManager.getAuthHeaders(),
                     body: JSON.stringify({
                         dashboard_username: username,
                         dashboard_password: password
@@ -6197,7 +6202,9 @@ console.log(result);`;
             btn.innerHTML = '<i data-lucide="loader" class="lucide lucide-sm rotating"></i> Analisando...';
             
             try {
-                const response = await fetch(`/api/instances/${currentHealthInstanceId}/repair-analysis`);
+                const response = await fetch(`/api/instances/${currentHealthInstanceId}/repair-analysis`, {
+                    headers: authManager.getAuthHeaders()
+                });
                 const data = await response.json();
                 
                 if (data.success) {
