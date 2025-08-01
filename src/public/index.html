@@ -3529,6 +3529,84 @@ INSERT INTO users (email) VALUES ('test@example.com');" rows="8"></textarea>
                         </div>
 
                         <div class="automation-section">
+                            <h4><i data-lucide="webhook" class="lucide lucide-sm"></i> Webhook SQL para Cursor IDE</h4>
+                            <p class="automation-description">Configure um webhook seguro para executar SQL diretamente do Cursor IDE:</p>
+                            
+                            <div class="webhook-config">
+                                <div class="webhook-permissions">
+                                    <label for="webhook-permission-level">Nível de Permissão:</label>
+                                    <select id="webhook-permission-level" class="webhook-select">
+                                        <option value="read_only">🔍 Apenas Leitura (SELECT)</option>
+                                        <option value="standard" selected>📝 Padrão (SELECT, INSERT, UPDATE)</option>
+                                        <option value="developer">⚙️ Desenvolvedor (+CREATE/ALTER)</option>
+                                        <option value="admin">👑 Administrador (Acesso Completo)</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="webhook-actions">
+                                    <button class="btn btn-primary" onclick="createSQLWebhook('${config.project_id}')">
+                                        <i data-lucide="plus" class="lucide lucide-sm"></i>
+                                        Criar Webhook
+                                    </button>
+                                    <button class="btn btn-secondary" onclick="listWebhooks('${config.project_id}')">
+                                        <i data-lucide="list" class="lucide lucide-sm"></i>
+                                        Gerenciar Webhooks
+                                    </button>
+                                </div>
+                                
+                                <div id="webhook-result" class="webhook-result" style="display: none;">
+                                    <div class="webhook-url-container">
+                                        <label>URL do Webhook (copie para o Cursor):</label>
+                                        <div class="webhook-url-display">
+                                            <input type="text" id="webhook-url" readonly class="webhook-url-input">
+                                            <button class="copy-btn" onclick="copyWebhookUrl()">
+                                                <i data-lucide="copy" class="lucide lucide-sm"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="webhook-details">
+                                        <div class="webhook-info">
+                                            <div class="info-item">
+                                                <strong>Rate Limits:</strong> <span id="webhook-rate-limits">30 req/min, 1000/dia</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <strong>Expira em:</strong> <span id="webhook-expires"></span>
+                                            </div>
+                                            <div class="info-item">
+                                                <strong>Token:</strong> <code id="webhook-token" class="webhook-token"></code>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="webhook-usage-example">
+                                        <h5><i data-lucide="code-2" class="lucide lucide-xs"></i> Exemplo de Uso no Cursor:</h5>
+                                        <div class="code-block">
+                                            <button class="copy-btn" onclick="copyToClipboard(document.getElementById('cursor-webhook-code').textContent)">
+                                                <i data-lucide="copy" class="lucide lucide-sm"></i>
+                                            </button>
+                                            <pre id="cursor-webhook-code">// Executar SQL via Webhook no Cursor IDE
+const response = await fetch('URL_DO_WEBHOOK_AQUI', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-Webhook-Token': 'SEU_TOKEN_AQUI'
+  },
+  body: JSON.stringify({
+    query: 'SELECT * FROM users LIMIT 10;',
+    transaction_id: \`cursor_\${Date.now()}\`
+  })
+});
+
+const result = await response.json();
+console.log(result);</pre>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="automation-section">
                             <h4><i data-lucide="code" class="lucide lucide-sm"></i> Exemplo de Automação</h4>
                             <div class="code-block">
                                 <button class="copy-btn" onclick="copyToClipboard(\`${config.automation_example.replace(/`/g, '\\`')}\`)">
@@ -4931,6 +5009,163 @@ CREATE POLICY "Users can create posts" ON public.posts
             showAlert('Templates carregados! Use os exemplos acima.', 'success');
         }
 
+        // Webhook SQL Functions
+        async function createSQLWebhook(projectId) {
+            const permissionLevel = document.getElementById('webhook-permission-level').value;
+            const webhookResult = document.getElementById('webhook-result');
+            
+            try {
+                showAlert('Criando webhook SQL...', 'info');
+                
+                const response = await fetch(`/api/instances/${projectId}/create-webhook`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        permissions: permissionLevel,
+                        name: `Cursor Webhook - ${new Date().toLocaleDateString()}`,
+                        description: `Webhook para execução SQL via Cursor IDE (${permissionLevel})`
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Mostrar resultado do webhook
+                    const webhookUrl = result.webhook_url;
+                    const token = result.webhook.token;
+                    const expiresAt = new Date(result.webhook.expires_at).toLocaleDateString('pt-BR');
+                    const rateLimits = `${result.webhook.rate_limits.requests_per_minute} req/min, ${result.webhook.rate_limits.daily_quota}/dia`;
+                    
+                    document.getElementById('webhook-url').value = webhookUrl;
+                    document.getElementById('webhook-token').textContent = token;
+                    document.getElementById('webhook-expires').textContent = expiresAt;
+                    document.getElementById('webhook-rate-limits').textContent = rateLimits;
+                    
+                    // Atualizar exemplo de código
+                    const exampleCode = `// Executar SQL via Webhook no Cursor IDE
+const response = await fetch('${webhookUrl}', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-Webhook-Token': '${token}'
+  },
+  body: JSON.stringify({
+    query: 'SELECT * FROM users LIMIT 10;',
+    transaction_id: \`cursor_\${Date.now()}\`
+  })
+});
+
+const result = await response.json();
+console.log(result);`;
+                    
+                    document.getElementById('cursor-webhook-code').textContent = exampleCode;
+                    
+                    webhookResult.style.display = 'block';
+                    showAlert('✅ Webhook SQL criado com sucesso!', 'success');
+                } else {
+                    showAlert(`Erro ao criar webhook: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                console.error('Erro ao criar webhook:', error);
+                showAlert('Erro ao criar webhook. Verifique o console para detalhes.', 'error');
+            }
+        }
+
+        async function listWebhooks(projectId) {
+            try {
+                showAlert('Carregando webhooks...', 'info');
+                
+                const response = await fetch(`/api/instances/${projectId}/webhooks`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success && result.webhooks.length > 0) {
+                    let webhooksList = '<h4>Webhooks Existentes:</h4><div class="webhooks-list">';
+                    
+                    result.webhooks.forEach(webhook => {
+                        const status = webhook.status === 'active' ? '🟢 Ativo' : '🔴 Inativo';
+                        const created = new Date(webhook.created_at).toLocaleDateString('pt-BR');
+                        const expires = new Date(webhook.expires_at).toLocaleDateString('pt-BR');
+                        
+                        webhooksList += `
+                            <div class="webhook-item">
+                                <h5>${webhook.metadata.name} ${status}</h5>
+                                <p><strong>Permissões:</strong> ${webhook.permissions}</p>
+                                <p><strong>Criado:</strong> ${created} | <strong>Expira:</strong> ${expires}</p>
+                                <p><strong>Uso:</strong> ${webhook.usage_stats.total_requests} requests total</p>
+                                <button class="btn btn-danger btn-sm" onclick="revokeWebhook('${projectId}', '${webhook.id}')">
+                                    <i data-lucide="trash-2" class="lucide lucide-xs"></i> Revogar
+                                </button>
+                            </div>
+                        `;
+                    });
+                    
+                    webhooksList += '</div>';
+                    
+                    // Mostrar em modal ou atualizar drawer
+                    showAlert(webhooksList, 'info', 10000);
+                } else if (result.success && result.webhooks.length === 0) {
+                    showAlert('Nenhum webhook encontrado. Crie o primeiro webhook!', 'info');
+                } else {
+                    showAlert(`Erro ao listar webhooks: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                console.error('Erro ao listar webhooks:', error);
+                showAlert('Erro ao listar webhooks. Verifique o console para detalhes.', 'error');
+            }
+        }
+
+        async function revokeWebhook(projectId, webhookId) {
+            if (!confirm('Tem certeza que deseja revogar este webhook? Esta ação não pode ser desfeita.')) {
+                return;
+            }
+            
+            try {
+                showAlert('Revogando webhook...', 'info');
+                
+                const response = await fetch(`/api/instances/${projectId}/webhooks/${webhookId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert('✅ Webhook revogado com sucesso!', 'success');
+                    // Recarregar lista
+                    setTimeout(() => listWebhooks(projectId), 1000);
+                } else {
+                    showAlert(`Erro ao revogar webhook: ${result.error}`, 'error');
+                }
+            } catch (error) {
+                console.error('Erro ao revogar webhook:', error);
+                showAlert('Erro ao revogar webhook. Verifique o console para detalhes.', 'error');
+            }
+        }
+
+        function copyWebhookUrl() {
+            const webhookUrl = document.getElementById('webhook-url');
+            webhookUrl.select();
+            webhookUrl.setSelectionRange(0, 99999); // Para dispositivos móveis
+            
+            try {
+                document.execCommand('copy');
+                showAlert('✅ URL do webhook copiada!', 'success');
+            } catch (err) {
+                console.error('Erro ao copiar:', err);
+                showAlert('Erro ao copiar URL. Use Ctrl+C manualmente.', 'error');
+            }
+        }
+
         // Change Password Modal Management
         function openChangePasswordModal() {
             const drawer = document.getElementById('change-password-drawer');
@@ -5737,6 +5972,147 @@ CREATE POLICY "Users can create posts" ON public.posts
             border-radius: 6px;
             padding: 1rem;
             margin-top: 1rem;
+        }
+
+        /* Webhook Configuration Styles */
+        .webhook-config {
+            background: hsl(var(--surface-100));
+            border: 1px solid hsl(var(--border));
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .webhook-permissions {
+            margin-bottom: 1.5rem;
+        }
+
+        .webhook-permissions label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: hsl(var(--foreground));
+        }
+
+        .webhook-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid hsl(var(--border));
+            border-radius: 6px;
+            background: hsl(var(--background));
+            color: hsl(var(--foreground));
+            font-size: 0.875rem;
+        }
+
+        .webhook-actions {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .webhook-result {
+            background: hsl(var(--surface-200));
+            border: 1px solid hsl(var(--border));
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .webhook-url-container {
+            margin-bottom: 1.5rem;
+        }
+
+        .webhook-url-container label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: hsl(var(--foreground));
+        }
+
+        .webhook-url-display {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .webhook-url-input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid hsl(var(--border));
+            border-radius: 6px;
+            background: hsl(var(--background));
+            color: hsl(var(--foreground));
+            font-family: 'Fira Code', monospace;
+            font-size: 0.75rem;
+        }
+
+        .webhook-details {
+            margin-bottom: 1.5rem;
+        }
+
+        .webhook-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid hsl(var(--border));
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .webhook-token {
+            background: hsl(var(--surface-100));
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.75rem;
+            border: 1px solid hsl(var(--border));
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .webhook-usage-example h5 {
+            margin-bottom: 1rem;
+            color: hsl(var(--foreground));
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .webhook-usage-example .code-block {
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .webhook-actions {
+                flex-direction: column;
+            }
+
+            .webhook-url-display {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .info-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.25rem;
+            }
+
+            .webhook-token {
+                max-width: none;
+                width: 100%;
+            }
         }
 
         .sql-result-table pre {

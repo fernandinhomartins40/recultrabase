@@ -287,6 +287,11 @@ app.use((req, res, next) => {
   next();
 });
 
+// WEBHOOK ROUTES - Sistema isolado para execução SQL via webhooks
+const webhookSQLRoutes = require('./routes/webhook-sql-routes');
+app.use('/webhook', webhookSQLRoutes);
+console.log('🔗 Rotas webhook SQL registradas em /webhook/*');
+
 // Static files with cache busting headers
 app.use(express.static(path.join(__dirname, 'public'), {
   setHeaders: (res, path) => {
@@ -4480,6 +4485,143 @@ app.post('/api/instances/:id/execute-sql', authenticateToken, checkProjectAccess
 });
 
 /**
+ * WEBHOOK API ROUTES - Sistema isolado para webhooks SQL
+ */
+const SQLWebhookManager = require('./webhooks/sql-webhook-manager');
+const webhookManager = new SQLWebhookManager();
+
+// Criar novo webhook SQL
+app.post('/api/instances/:id/create-webhook', authenticateToken, checkProjectAccess, async (req, res) => {
+  try {
+    const instanceId = req.params.id;
+    const userId = req.user.id;
+    const { permissions, name, description, expirationDays } = req.body;
+
+    console.log(`🔗 Criando webhook SQL para instância ${instanceId} por usuário ${userId}`);
+
+    // Criar webhook com permissões específicas
+    const webhook = await webhookManager.createWebhook(userId, instanceId, permissions || 'standard', {
+      name: name,
+      description: description,
+      expirationDays: expirationDays || 365
+    });
+
+    // Gerar URL do webhook
+    const webhookUrl = webhookManager.generateWebhookUrl(instanceId, webhook.token);
+
+    res.json({
+      success: true,
+      webhook: webhook,
+      webhook_url: webhookUrl,
+      message: 'Webhook SQL criado com sucesso'
+    });
+
+    console.log(`✅ Webhook SQL criado: ${webhook.id} para instância ${instanceId}`);
+  } catch (error) {
+    console.error('❌ Erro ao criar webhook SQL:', error);
+    res.status(500).json({ 
+      success: false,
+      error: error.message 
+    });
+  }
+});
+
+// Listar webhooks do usuário para uma instância
+app.get('/api/instances/:id/webhooks', authenticateToken, checkProjectAccess, async (req, res) => {
+  try {
+    const instanceId = req.params.id;
+    const userId = req.user.id;
+
+    console.log(`📋 Listando webhooks para instância ${instanceId} por usuário ${userId}`);
+
+    // Listar webhooks do usuário
+    const userWebhooks = await webhookManager.listUserWebhooks(userId);
+    
+    // Filtrar apenas webhooks desta instância
+    const instanceWebhooks = userWebhooks.filter(wh => wh.instance_id === instanceId);
+
+    res.json({
+      success: true,
+      webhooks: instanceWebhooks,
+      total: instanceWebhooks.length
+    });
+
+    console.log(`✅ ${instanceWebhooks.length} webhooks encontrados para instância ${instanceId}`);
+  } catch (error) {
+    console.error('❌ Erro ao listar webhooks:', error);
+    res.status(500).json({ 
+      success: false,
+      error: error.message 
+    });
+  }
+});
+
+// Revogar webhook específico
+app.delete('/api/instances/:id/webhooks/:webhookId', authenticateToken, checkProjectAccess, async (req, res) => {
+  try {
+    const instanceId = req.params.id;
+    const webhookId = req.params.webhookId;
+    const userId = req.user.id;
+
+    console.log(`🗑️ Revogando webhook ${webhookId} da instância ${instanceId} por usuário ${userId}`);
+
+    // Revogar webhook (verifica se pertence ao usuário)
+    await webhookManager.revokeWebhook(webhookId, userId);
+
+    res.json({
+      success: true,
+      message: 'Webhook revogado com sucesso'
+    });
+
+    console.log(`✅ Webhook ${webhookId} revogado com sucesso`);
+  } catch (error) {
+    console.error('❌ Erro ao revogar webhook:', error);
+    res.status(500).json({ 
+      success: false,
+      error: error.message 
+    });
+  }
+});
+
+// Obter estatísticas de webhook específico
+app.get('/api/instances/:id/webhooks/:webhookId/stats', authenticateToken, checkProjectAccess, async (req, res) => {
+  try {
+    const instanceId = req.params.id;
+    const webhookId = req.params.webhookId;
+    const userId = req.user.id;
+
+    console.log(`📊 Obtendo estatísticas do webhook ${webhookId} da instância ${instanceId}`);
+
+    // Verificar se webhook pertence ao usuário
+    const userWebhooks = await webhookManager.listUserWebhooks(userId);
+    const webhook = userWebhooks.find(wh => wh.id === webhookId && wh.instance_id === instanceId);
+    
+    if (!webhook) {
+      return res.status(404).json({ 
+        success: false,
+        error: 'Webhook não encontrado ou não autorizado' 
+      });
+    }
+
+    // Obter estatísticas
+    const stats = webhookManager.getWebhookStats(webhookId);
+
+    res.json({
+      success: true,
+      stats: stats
+    });
+
+    console.log(`✅ Estatísticas do webhook ${webhookId} obtidas com sucesso`);
+  } catch (error) {
+    console.error('❌ Erro ao obter estatísticas do webhook:', error);
+    res.status(500).json({ 
+      success: false,
+      error: error.message 
+    });
+  }
+});
+
+/**
  * Health check with system diagnostics
  */
 app.get('/api/health', async (req, res) => {
@@ -4789,6 +4931,9 @@ process.on('unhandledRejection', (reason, promise) => {
   console.error('❌ Promise rejeitada não tratada:', reason);
   process.exit(1);
 });
+
+// Exportar manager para acesso pelos webhooks (isolamento mantido)
+module.exports = { manager };
 
 // Iniciar servidor
 startServer();
