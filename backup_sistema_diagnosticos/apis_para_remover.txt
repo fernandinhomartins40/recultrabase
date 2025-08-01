@@ -1,0 +1,32 @@
+APIs ANTIGAS PARA REMOVER - FASE 3
+
+Baseado na documentação da Fase 2, estas são as APIs que devem ser removidas:
+
+LINHA 2825: app.get('/api/instances/:id/run-diagnostics'
+LINHA 2865: app.get('/api/instances/:id/last-diagnostic'
+LINHA 2993: app.get('/api/instances/:id/diagnostic-logs'
+LINHA 3062: app.post('/api/instances/:id/diagnostic-action'
+LINHA 3201: app.get('/api/instances/:id/diagnostic-history'
+LINHA 3250: app.get('/api/diagnostics/global-stats'
+LINHA 3272: app.post('/api/diagnostics/cleanup'
+LINHA 3301: app.post('/api/instances/:id/schedule-diagnostics'
+LINHA 3332: app.get('/api/instances/:id/schedule-diagnostics'
+LINHA 3451: app.get('/api/diagnostics/schedules'
+LINHA 3476: app.get('/api/diagnostics/full-cron-script'
+LINHA 3557: app.post('/api/instances/:id/auto-repair'
+
+OUTRAS APIS IDENTIFICADAS NA FASE 2:
+- app.get('/api/instances/:id/test-auth-service'
+- app.get('/api/instances/:id/action-history'  
+- app.get('/api/instances/:id/action-stats'
+- app.get('/api/instances/:id/health-report'
+- app.put('/api/instances/:id/schedule-diagnostics'
+- app.delete('/api/instances/:id/schedule-diagnostics'
+- app.get('/api/instances/:id/cron-script'
+- app.post('/api/instances/:id/safe-restart'
+
+SUBSTITUIÇÕES:
+- run-diagnostics → /api/instances/:id/health (JÁ IMPLEMENTADO)
+- auto-repair → /api/instances/:id/restart-services (JÁ IMPLEMENTADO)  
+- global-stats → /api/instances/health-summary (JÁ IMPLEMENTADO)
+- service específico → /api/instances/:id/restart-service/:serviceName (JÁ IMPLEMENTADO)

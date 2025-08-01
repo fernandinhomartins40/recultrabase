@@ -2822,15 +2822,41 @@ app.get('/api/instances/:id/logs', authenticateToken, checkProjectAccess, async 
 /**
  * Executa diagnóstico completo de uma instância
  */
-// REMOVIDO: API descontinuada - Redireciona para nova API de saúde
 app.get('/api/instances/:id/run-diagnostics', authenticateToken, checkProjectAccess, async (req, res) => {
-  // Redirecionar para nova API de saúde
-  return res.status(301).json({
-    success: false,
-    message: 'API descontinuada. Use /api/instances/:id/health',
-    redirect: `/api/instances/${req.params.id}/health`,
-    deprecated: true
-  });
+  try {
+    console.log(`🔍 Usuário ${req.user.id} executando diagnóstico para instância ${req.params.id}`);
+    
+    const diagnostic = await instanceDiagnostics.runFullDiagnostic(req.params.id);
+    
+    // Salvar diagnóstico no histórico
+    await diagnosticHistory.saveDiagnostic(req.params.id, diagnostic);
+    
+    res.json({
+      success: true,
+      message: 'Diagnóstico executado com sucesso',
+      diagnostic: diagnostic
+    });
+  } catch (error) {
+    console.error('❌ Erro no diagnóstico:', error);
+    
+    // Diferentes códigos de erro baseados no tipo
+    if (error.message.includes('Rate limit')) {
+      res.status(429).json({ 
+        error: error.message,
+        code: 'RATE_LIMITED'
+      });
+    } else if (error.message.includes('não encontrada')) {
+      res.status(404).json({ 
+        error: error.message,
+        code: 'INSTANCE_NOT_FOUND'
+      });
+    } else {
+      res.status(500).json({ 
+        error: error.message,
+        code: 'DIAGNOSTIC_FAILED'
+      });
+    }
+  }
 });
 
 /**

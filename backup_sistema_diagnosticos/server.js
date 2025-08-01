@@ -31,14 +31,19 @@ const net = require('net');
 // CORREÇÃO FASE 4: Logging estruturado
 const logger = require('./utils/logger');
 
-// REMOVIDO: Sistema de diagnósticos antigo substituído pelo Service Monitor
+// Importar sistema de diagnóstico
+const HealthChecker = require('./diagnostics/health-checker');
+const LogAnalyzer = require('./diagnostics/log-analyzer');
+const DiagnosticHistory = require('./diagnostics/diagnostic-history');
+const ScheduledDiagnostics = require('./diagnostics/scheduled-diagnostics');
 
 // Importar sistema de gerenciamento seguro
 const SafeInstanceManager = require('./management/safe-manager');
 const ConfigEditor = require('./management/config-editor');
 const BackupSystem = require('./management/backup-system');
 
-// REMOVIDO: Auto-correção substituída pelo Service Restarter
+// Importar sistema de auto-correção
+const RepairAPI = require('./diagnostics/interfaces/repair-api');
 
 const execAsync = promisify(exec);
 const docker = new Docker();
@@ -281,11 +286,6 @@ app.use((req, res, next) => {
   console.log(`✅ [DOMAIN-MIDDLEWARE] Host válido, prosseguindo: ${host}`);
   next();
 });
-
-// WEBHOOK ROUTES - Sistema isolado para execução SQL via webhooks
-const webhookSQLRoutes = require('./routes/webhook-sql-routes');
-app.use('/webhook', webhookSQLRoutes);
-console.log('🔗 Rotas webhook SQL registradas em /webhook/*');
 
 // Static files with cache busting headers
 app.use(express.static(path.join(__dirname, 'public'), {
@@ -2287,19 +2287,24 @@ class InstanceDiagnostics {
 const userManager = new UserManager();
 const manager = new SupabaseInstanceManager();
 
-// REMOVIDO: Sistema de diagnósticos substituído pelo Service Monitor
+// Instância global do sistema de diagnóstico
+const instanceDiagnostics = new InstanceDiagnostics({
+  DOCKER_DIR: DOCKER_DIR,
+  EXTERNAL_IP: EXTERNAL_IP,
+  SERVER_IP: SERVER_IP
+});
 
 // Instâncias globais do sistema de gerenciamento seguro
 const safeManager = new SafeInstanceManager(
   { DOCKER_DIR: DOCKER_DIR, EXTERNAL_IP: EXTERNAL_IP, SERVER_IP: SERVER_IP },
-  manager
-  // REMOVIDO: instanceDiagnostics dependência
+  manager,
+  instanceDiagnostics
 );
 
 const configEditor = new ConfigEditor(
   { DOCKER_DIR: DOCKER_DIR, EXTERNAL_IP: EXTERNAL_IP, SERVER_IP: SERVER_IP },
-  manager
-  // REMOVIDO: instanceDiagnostics dependência
+  manager,
+  instanceDiagnostics
 );
 
 const backupSystem = new BackupSystem({
@@ -2308,11 +2313,24 @@ const backupSystem = new BackupSystem({
   SERVER_IP: SERVER_IP
 });
 
-// REMOVIDO: RepairAPI substituído pelo Service Restarter
+// Instância global do sistema de auto-correção
+const repairAPI = new RepairAPI(
+  app,
+  { DOCKER_DIR: DOCKER_DIR, EXTERNAL_IP: EXTERNAL_IP, SERVER_IP: SERVER_IP },
+  manager,
+  instanceDiagnostics
+);
 
-// REMOVIDO: DiagnosticHistory e ScheduledDiagnostics substituídos pelo Service Monitor
+// Instância global do histórico de diagnósticos
+const diagnosticHistory = new DiagnosticHistory();
 
-// REMOVIDO: Cache cleanup do sistema antigo não é mais necessário
+// Instância global do sistema de agendamento
+const scheduledDiagnostics = new ScheduledDiagnostics();
+
+// Limpar cache a cada 5 minutos
+setInterval(() => {
+  instanceDiagnostics.cleanupCache();
+}, 5 * 60 * 1000);
 
 // Middleware de autenticação
 const authenticateToken = (req, res, next) => {
@@ -2822,15 +2840,41 @@ app.get('/api/instances/:id/logs', authenticateToken, checkProjectAccess, async 
 /**
  * Executa diagnóstico completo de uma instância
  */
-// REMOVIDO: API descontinuada - Redireciona para nova API de saúde
 app.get('/api/instances/:id/run-diagnostics', authenticateToken, checkProjectAccess, async (req, res) => {
-  // Redirecionar para nova API de saúde
-  return res.status(301).json({
-    success: false,
-    message: 'API descontinuada. Use /api/instances/:id/health',
-    redirect: `/api/instances/${req.params.id}/health`,
-    deprecated: true
-  });
+  try {
+    console.log(`🔍 Usuário ${req.user.id} executando diagnóstico para instância ${req.params.id}`);
+    
+    const diagnostic = await instanceDiagnostics.runFullDiagnostic(req.params.id);
+    
+    // Salvar diagnóstico no histórico
+    await diagnosticHistory.saveDiagnostic(req.params.id, diagnostic);
+    
+    res.json({
+      success: true,
+      message: 'Diagnóstico executado com sucesso',
+      diagnostic: diagnostic
+    });
+  } catch (error) {
+    console.error('❌ Erro no diagnóstico:', error);
+    
+    // Diferentes códigos de erro baseados no tipo
+    if (error.message.includes('Rate limit')) {
+      res.status(429).json({ 
+        error: error.message,
+        code: 'RATE_LIMITED'
+      });
+    } else if (error.message.includes('não encontrada')) {
+      res.status(404).json({ 
+        error: error.message,
+        code: 'INSTANCE_NOT_FOUND'
+      });
+    } else {
+      res.status(500).json({ 
+        error: error.message,
+        code: 'DIAGNOSTIC_FAILED'
+      });
+    }
+  }
 });
 
 /**
@@ -4436,294 +4480,6 @@ app.post('/api/instances/:id/execute-sql', authenticateToken, checkProjectAccess
 });
 
 /**
- * WEBHOOK API ROUTES - Sistema isolado para webhooks SQL
- */
-const SQLWebhookManager = require('./webhooks/sql-webhook-manager');
-const webhookManager = new SQLWebhookManager();
-
-// Criar novo webhook SQL
-app.post('/api/instances/:id/create-webhook', authenticateToken, checkProjectAccess, async (req, res) => {
-  try {
-    const instanceId = req.params.id;
-    const userId = req.user.id;
-    const { permissions, name, description, expirationDays } = req.body;
-
-    console.log(`🔗 Criando webhook SQL para instância ${instanceId} por usuário ${userId}`);
-
-    // Criar webhook com permissões específicas
-    const webhook = await webhookManager.createWebhook(userId, instanceId, permissions || 'standard', {
-      name: name,
-      description: description,
-      expirationDays: expirationDays || 365
-    });
-
-    // Gerar URL do webhook
-    const webhookUrl = webhookManager.generateWebhookUrl(instanceId, webhook.token);
-
-    res.json({
-      success: true,
-      webhook: webhook,
-      webhook_url: webhookUrl,
-      message: 'Webhook SQL criado com sucesso'
-    });
-
-    console.log(`✅ Webhook SQL criado: ${webhook.id} para instância ${instanceId}`);
-  } catch (error) {
-    console.error('❌ Erro ao criar webhook SQL:', error);
-    res.status(500).json({ 
-      success: false,
-      error: error.message 
-    });
-  }
-});
-
-// Listar webhooks do usuário para uma instância
-app.get('/api/instances/:id/webhooks', authenticateToken, checkProjectAccess, async (req, res) => {
-  try {
-    const instanceId = req.params.id;
-    const userId = req.user.id;
-
-    console.log(`📋 Listando webhooks para instância ${instanceId} por usuário ${userId}`);
-
-    // Listar webhooks do usuário
-    const userWebhooks = await webhookManager.listUserWebhooks(userId);
-    
-    // Filtrar apenas webhooks desta instância
-    const instanceWebhooks = userWebhooks.filter(wh => wh.instance_id === instanceId);
-
-    res.json({
-      success: true,
-      webhooks: instanceWebhooks,
-      total: instanceWebhooks.length
-    });
-
-    console.log(`✅ ${instanceWebhooks.length} webhooks encontrados para instância ${instanceId}`);
-  } catch (error) {
-    console.error('❌ Erro ao listar webhooks:', error);
-    res.status(500).json({ 
-      success: false,
-      error: error.message 
-    });
-  }
-});
-
-// Revogar webhook específico
-app.delete('/api/instances/:id/webhooks/:webhookId', authenticateToken, checkProjectAccess, async (req, res) => {
-  try {
-    const instanceId = req.params.id;
-    const webhookId = req.params.webhookId;
-    const userId = req.user.id;
-
-    console.log(`🗑️ Revogando webhook ${webhookId} da instância ${instanceId} por usuário ${userId}`);
-
-    // Revogar webhook (verifica se pertence ao usuário)
-    await webhookManager.revokeWebhook(webhookId, userId);
-
-    res.json({
-      success: true,
-      message: 'Webhook revogado com sucesso'
-    });
-
-    console.log(`✅ Webhook ${webhookId} revogado com sucesso`);
-  } catch (error) {
-    console.error('❌ Erro ao revogar webhook:', error);
-    res.status(500).json({ 
-      success: false,
-      error: error.message 
-    });
-  }
-});
-
-// Obter estatísticas de webhook específico
-app.get('/api/instances/:id/webhooks/:webhookId/stats', authenticateToken, checkProjectAccess, async (req, res) => {
-  try {
-    const instanceId = req.params.id;
-    const webhookId = req.params.webhookId;
-    const userId = req.user.id;
-
-    console.log(`📊 Obtendo estatísticas do webhook ${webhookId} da instância ${instanceId}`);
-
-    // Verificar se webhook pertence ao usuário
-    const userWebhooks = await webhookManager.listUserWebhooks(userId);
-    const webhook = userWebhooks.find(wh => wh.id === webhookId && wh.instance_id === instanceId);
-    
-    if (!webhook) {
-      return res.status(404).json({ 
-        success: false,
-        error: 'Webhook não encontrado ou não autorizado' 
-      });
-    }
-
-    // Obter estatísticas
-    const stats = webhookManager.getWebhookStats(webhookId);
-
-    res.json({
-      success: true,
-      stats: stats
-    });
-
-    console.log(`✅ Estatísticas do webhook ${webhookId} obtidas com sucesso`);
-  } catch (error) {
-    console.error('❌ Erro ao obter estatísticas do webhook:', error);
-    res.status(500).json({ 
-      success: false,
-      error: error.message 
-    });
-  }
-});
-
-/**
- * SERVICE MONITOR API ROUTES - Sistema simplificado de monitoramento de serviços
- */
-const ServiceMonitor = require('./services/service-monitor');
-const ServiceRestarter = require('./services/service-restarter');
-
-// Inicializar sistema de monitoramento
-const serviceMonitor = new ServiceMonitor();
-const serviceRestarter = new ServiceRestarter(docker, serviceMonitor);
-
-// 1. Verificar saúde de uma instância
-app.get('/api/instances/:id/health', authenticateToken, checkProjectAccess, async (req, res) => {
-  try {
-    const instanceId = req.params.id;
-    const instance = manager.instances[instanceId];
-    
-    if (!instance) {
-      return res.status(404).json({ 
-        success: false,
-        error: 'Instância não encontrada' 
-      });
-    }
-
-    console.log(`🔍 Verificando saúde da instância ${instanceId} via API`);
-    
-    const health = await serviceMonitor.checkInstance(instanceId, instance);
-    
-    res.json({ 
-      success: true, 
-      health: health,
-      timestamp: new Date().toISOString()
-    });
-
-  } catch (error) {
-    console.error(`❌ Erro na verificação de saúde da instância ${req.params.id}:`, error);
-    res.status(500).json({ 
-      success: false,
-      error: error.message 
-    });
-  }
-});
-
-// 2. Reiniciar serviços de uma instância
-app.post('/api/instances/:id/restart-services', authenticateToken, checkProjectAccess, async (req, res) => {
-  try {
-    const instanceId = req.params.id;
-    const instance = manager.instances[instanceId];
-    const { forceAll = false, specificService = null } = req.body;
-    
-    if (!instance) {
-      return res.status(404).json({ 
-        success: false,
-        error: 'Instância não encontrada' 
-      });
-    }
-
-    console.log(`🔄 Solicitação de reinicialização de serviços para instância ${instanceId}`);
-    
-    const result = await serviceRestarter.restartInstanceServices(instanceId, instance, { 
-      forceAll, 
-      specificService 
-    });
-    
-    res.json({ 
-      success: true, 
-      result: result,
-      timestamp: new Date().toISOString()
-    });
-
-  } catch (error) {
-    console.error(`❌ Erro na reinicialização de serviços da instância ${req.params.id}:`, error);
-    res.status(500).json({ 
-      success: false,
-      error: error.message 
-    });
-  }
-});
-
-// 3. Verificar saúde de todas as instâncias
-app.get('/api/instances/health-summary', authenticateToken, async (req, res) => {
-  try {
-    console.log('📊 Gerando resumo de saúde de todas as instâncias');
-    
-    const results = await serviceMonitor.checkAllInstances(manager.instances);
-    const stats = serviceMonitor.getHealthStats(results);
-    
-    res.json({ 
-      success: true, 
-      instances: results,
-      stats: stats,
-      timestamp: new Date().toISOString()
-    });
-
-  } catch (error) {
-    console.error('❌ Erro no resumo de saúde das instâncias:', error);
-    res.status(500).json({ 
-      success: false,
-      error: error.message 
-    });
-  }
-});
-
-// 4. Reiniciar serviço específico
-app.post('/api/instances/:id/restart-service/:serviceName', authenticateToken, checkProjectAccess, async (req, res) => {
-  try {
-    const { id: instanceId, serviceName } = req.params;
-    const instance = manager.instances[instanceId];
-    
-    if (!instance) {
-      return res.status(404).json({ 
-        success: false,
-        error: 'Instância não encontrada' 
-      });
-    }
-
-    // Validar nome do serviço
-    const validServices = ['db', 'kong', 'auth', 'rest', 'studio'];
-    if (!validServices.includes(serviceName)) {
-      return res.status(400).json({ 
-        success: false,
-        error: `Serviço inválido. Serviços válidos: ${validServices.join(', ')}` 
-      });
-    }
-
-    console.log(`🔄 Reiniciando serviço ${serviceName} da instância ${instanceId}`);
-    
-    const result = await serviceRestarter.restartSpecificService(instanceId, serviceName);
-    
-    // Aguardar e verificar se reiniciou
-    await serviceRestarter.sleep(3000);
-    const health = await serviceMonitor.checkInstance(instanceId, instance);
-    
-    res.json({ 
-      success: result.success, 
-      message: result.success 
-        ? `Serviço ${serviceName} reiniciado com sucesso`
-        : `Falha ao reiniciar serviço ${serviceName}`,
-      result: result,
-      health: health.containers[result.containerName],
-      timestamp: new Date().toISOString()
-    });
-
-  } catch (error) {
-    console.error(`❌ Erro ao reiniciar serviço ${req.params.serviceName}:`, error);
-    res.status(500).json({ 
-      success: false,
-      error: error.message 
-    });
-  }
-});
-
-/**
  * Health check with system diagnostics
  */
 app.get('/api/health', async (req, res) => {
@@ -5033,9 +4789,6 @@ process.on('unhandledRejection', (reason, promise) => {
   console.error('❌ Promise rejeitada não tratada:', reason);
   process.exit(1);
 });
-
-// Exportar manager para acesso pelos webhooks (isolamento mantido)
-module.exports = { manager };
 
 // Iniciar servidor
 startServer();

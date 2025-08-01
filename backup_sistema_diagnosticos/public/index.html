@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultrabase - Diagnósticos v2.0</title>
+    <title>Ultrabase</title>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <meta name="version" content="diagnostics-v2.0-<?php echo time(); ?>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -542,60 +541,38 @@
             transform: translateY(-1px);
         }
 
-        /* ========================================
-           SISTEMA DE DRAWERS LATERAIS - V2.0
-           ======================================== */
-
-        /* Variáveis do Sistema de Espaçamento */
-        :root {
-            --spacing-xs: 4px;
-            --spacing-sm: 8px;
-            --spacing-md: 16px;
-            --spacing-lg: 24px;
-            --spacing-xl: 32px;
-            --spacing-2xl: 48px;
-            
-            /* Tamanhos de Drawer Padronizados */
-            --drawer-sm: 400px;
-            --drawer-md: 500px;
-            --drawer-lg: 600px;
-            --drawer-xl: 700px;
-            --drawer-2xl: 900px;
-        }
-
-        /* Container Principal do Drawer */
+        /* Drawer Lateral Styles */
         .drawer {
             position: fixed;
             top: 0;
             right: -100%;
             width: 100%;
-            max-width: var(--drawer-md);
+            max-width: 500px;
             height: 100vh;
             background: hsl(var(--background));
             border-left: 1px solid hsl(var(--border));
             box-shadow: -10px 0 25px hsl(var(--foreground) / 0.1);
             z-index: 1000;
-            transition: right 0.3s ease-out, box-shadow 0.3s ease-out;
-            overflow: hidden; /* Remove scroll desnecessário do container principal */
+            transition: right 0.3s ease-out;
+            overflow-y: auto;
+            overflow-x: hidden;
             display: flex;
             flex-direction: column;
         }
 
         .drawer.open {
             right: 0;
-            box-shadow: -20px 0 40px hsl(var(--foreground) / 0.15);
         }
 
-        /* Backdrop com Melhor Blur */
+        /* Drawer backdrop */
         .drawer-backdrop {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100vh;
-            background: hsl(var(--background) / 0.85);
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
+            background: hsl(var(--background) / 0.8);
+            backdrop-filter: blur(4px);
             z-index: 999;
             opacity: 0;
             visibility: hidden;
@@ -607,17 +584,23 @@
             visibility: visible;
         }
 
-        /* Variantes de Tamanho Organizadas */
-        .drawer.drawer-small { max-width: var(--drawer-sm); }
-        .drawer.drawer-medium { max-width: var(--drawer-lg); }
-        .drawer.drawer-large { max-width: var(--drawer-xl); }
-        .drawer.drawer-xl { max-width: var(--drawer-2xl); }
+        /* Drawer size variants */
+        .drawer.drawer-large {
+            max-width: 700px;
+        }
 
-        /* Header com Espaçamento Padronizado */
+        .drawer.drawer-xl {
+            max-width: 900px;
+        }
+
+        .drawer.drawer-medium {
+            max-width: 600px;
+        }
+
         .drawer-header {
             background: hsl(var(--surface-100));
             border-bottom: 1px solid hsl(var(--border));
-            padding: var(--spacing-lg) var(--spacing-xl);
+            padding: 1.5rem 2rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -625,7 +608,6 @@
             position: sticky;
             top: 0;
             z-index: 10;
-            min-height: 72px; /* Altura mínima consistente */
         }
 
         .drawer-title {
@@ -635,318 +617,91 @@
             color: hsl(var(--foreground));
             display: flex;
             align-items: center;
-            gap: var(--spacing-sm);
-            line-height: 1.3;
+            gap: 0.5rem;
         }
 
-        /* Content com Scroll Otimizado */
         .drawer-content {
             flex: 1;
-            padding: var(--spacing-xl);
-            overflow-y: auto; /* Apenas vertical, centralizado aqui */
+            padding: 2rem;
+            overflow-y: auto;
             overflow-x: hidden;
             word-wrap: break-word;
             box-sizing: border-box;
-            min-height: 0; /* Permite flex shrink correto */
         }
 
-        /* Actions com Layout Melhorado */
         .drawer-actions {
             background: hsl(var(--surface-100));
             border-top: 1px solid hsl(var(--border));
-            padding: var(--spacing-lg) var(--spacing-xl);
+            padding: 1.5rem 2rem;
             display: flex;
-            gap: var(--spacing-md);
+            gap: 1rem;
             justify-content: flex-end;
             flex-shrink: 0;
-            min-height: 72px; /* Altura mínima consistente */
-            align-items: center;
         }
 
-        /* Botão de Fechar Aprimorado */
         .close-btn {
             background: none;
             border: none;
             font-size: 1.5rem;
             color: hsl(var(--muted-foreground));
             cursor: pointer;
-            padding: var(--spacing-sm);
-            border-radius: 6px;
+            padding: 0.25rem;
+            border-radius: 4px;
             transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 40px;
-            height: 40px;
-            flex-shrink: 0;
+            width: 32px;
+            height: 32px;
         }
 
         .close-btn:hover {
             background: hsl(var(--surface-200));
             color: hsl(var(--foreground));
-            transform: scale(1.05);
         }
 
-        .close-btn:active {
-            transform: scale(0.95);
-        }
-
-        /* Estilos para Elementos de Formulário dentro dos Drawers */
-        .drawer-content .form-group {
-            margin-bottom: var(--spacing-lg);
-        }
-
-        .drawer-content .form-group:last-child {
-            margin-bottom: 0;
-        }
-
-        .drawer-content label {
-            display: block;
-            margin-bottom: var(--spacing-sm);
-            font-weight: 500;
-            color: hsl(var(--foreground));
-        }
-
-        .drawer-content input,
-        .drawer-content textarea,
-        .drawer-content select {
-            margin-bottom: var(--spacing-md);
-        }
-
-        .drawer-content input:last-child,
-        .drawer-content textarea:last-child,
-        .drawer-content select:last-child {
-            margin-bottom: 0;
-        }
-
-        /* Espaçamento para Cards e Seções */
-        .drawer-content .card,
-        .drawer-content .section {
-            margin-bottom: var(--spacing-lg);
-        }
-
-        .drawer-content .card:last-child,
-        .drawer-content .section:last-child {
-            margin-bottom: 0;
-        }
-
-        /* Espaçamento para Listas */
-        .drawer-content ul,
-        .drawer-content ol {
-            margin-bottom: var(--spacing-md);
-            padding-left: var(--spacing-lg);
-        }
-
-        .drawer-content li {
-            margin-bottom: var(--spacing-xs);
-        }
-
-        /* Espaçamento para Parágrafos e Textos */
-        .drawer-content p {
-            margin-bottom: var(--spacing-md);
-            line-height: 1.6;
-        }
-
-        .drawer-content p:last-child {
-            margin-bottom: 0;
-        }
-
-        .drawer-content h1,
-        .drawer-content h2,
-        .drawer-content h3,
-        .drawer-content h4,
-        .drawer-content h5,
-        .drawer-content h6 {
-            margin-bottom: var(--spacing-md);
-            margin-top: var(--spacing-lg);
-        }
-
-        .drawer-content h1:first-child,
-        .drawer-content h2:first-child,
-        .drawer-content h3:first-child,
-        .drawer-content h4:first-child,
-        .drawer-content h5:first-child,
-        .drawer-content h6:first-child {
-            margin-top: 0;
-        }
-
-        /* ========================================
-           RESPONSIVIDADE OTIMIZADA
-           ======================================== */
-
-        /* Tablet e dispositivos médios */
-        @media (max-width: 1024px) {
-            .drawer.drawer-xl,
-            .drawer.drawer-large {
-                max-width: 85vw;
-            }
-        }
-
-        /* Tablet Portrait e Mobile Landscape */
+        /* Drawer responsividade */
         @media (max-width: 768px) {
-            :root {
-                --spacing-xl: 24px; /* Reduz espaçamento em telas menores */
-                --spacing-lg: 16px;
-            }
-
             .drawer {
                 max-width: 100%;
                 width: 100%;
             }
             
-            .drawer.drawer-small,
-            .drawer.drawer-medium,
             .drawer.drawer-large,
-            .drawer.drawer-xl {
+            .drawer.drawer-xl,
+            .drawer.drawer-medium {
                 max-width: 100%;
             }
 
-            .drawer-header {
-                padding: var(--spacing-lg) var(--spacing-lg);
-                min-height: 64px;
-            }
-
-            .drawer-content {
-                padding: var(--spacing-lg);
-            }
-
+            .drawer-header,
+            .drawer-content,
             .drawer-actions {
-                padding: var(--spacing-lg);
-                min-height: 64px;
+                padding-left: 1rem;
+                padding-right: 1rem;
             }
 
             .drawer-title {
                 font-size: 1.125rem;
             }
-
-            .close-btn {
-                width: 36px;
-                height: 36px;
-            }
         }
 
-        /* Mobile Portrait */
         @media (max-width: 480px) {
-            :root {
-                --spacing-xl: 16px; /* Mais compacto em mobile */
-                --spacing-lg: 12px;
-            }
-
             .drawer-header {
-                padding: var(--spacing-md) var(--spacing-md);
-                min-height: 56px;
+                padding: 1rem;
             }
 
             .drawer-content {
-                padding: var(--spacing-md);
+                padding: 1rem;
             }
 
             .drawer-actions {
-                padding: var(--spacing-md);
+                padding: 1rem;
                 flex-direction: column;
-                gap: var(--spacing-sm);
-                min-height: auto;
+                gap: 0.5rem;
             }
 
             .drawer-actions .btn {
                 width: 100%;
-                margin: 0;
-            }
-
-            .drawer-title {
-                font-size: 1rem;
-            }
-
-            .close-btn {
-                width: 32px;
-                height: 32px;
-                font-size: 1.25rem;
-            }
-
-            /* Ajustes específicos para formulários em mobile */
-            .drawer-content .form-group {
-                margin-bottom: var(--spacing-md);
-            }
-
-            .drawer-content input,
-            .drawer-content textarea,
-            .drawer-content select {
-                margin-bottom: var(--spacing-sm);
-            }
-        }
-
-        /* Mobile muito pequeno */
-        @media (max-width: 320px) {
-            .drawer-header,
-            .drawer-content,
-            .drawer-actions {
-                padding-left: var(--spacing-sm);
-                padding-right: var(--spacing-sm);
-            }
-        }
-
-        /* Responsividade para elementos de credenciais */
-        @media (max-width: 768px) {
-            .credential-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: var(--spacing-sm);
-            }
-            
-            .credential-label {
-                min-width: auto;
-                width: 100%;
-            }
-            
-            .credential-value {
-                width: 100%;
-                padding: var(--spacing-sm);
-                background: hsl(var(--surface-100));
-                border-radius: 4px;
-                border: 1px solid hsl(var(--border));
-            }
-
-            /* Responsividade específica para drawer Cursor Integration */
-            .template-grid {
-                grid-template-columns: 1fr 1fr; /* 2 colunas em mobile */
-                gap: 0.5rem;
-            }
-
-            .template-card {
-                padding: 0.5rem;
-            }
-
-            .template-card h5 {
-                font-size: 0.8rem;
-            }
-
-            .template-card p {
-                font-size: 0.7rem;
-            }
-
-            .test-buttons {
-                flex-direction: column; /* Botões em coluna no mobile */
-                gap: 0.5rem;
-            }
-
-            .test-buttons .btn {
-                width: 100%;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .template-grid {
-                grid-template-columns: 1fr; /* 1 coluna em telas muito pequenas */
-            }
-            
-            .credential-item {
-                padding: 0.5rem;
-            }
-
-            .copy-btn,
-            .toggle-btn {
-                width: 24px;
-                height: 24px;
             }
         }
 
@@ -1080,83 +835,76 @@
             display: none;
         }
 
-        /* ========================================
-           BARRAS DE ROLAGEM OTIMIZADAS - V2.1
-           ======================================== */
-
-        /* IMPORTANTE: Apenas .drawer-content deve ter scroll principal */
+        /* Estilização universal da barra de rolagem para drawers */
+        .drawer::-webkit-scrollbar,
         .drawer-content::-webkit-scrollbar,
+        .tab-content::-webkit-scrollbar,
         .diagnostic-results-container::-webkit-scrollbar,
         #diagnostic-results::-webkit-scrollbar,
         .history-container::-webkit-scrollbar {
-            width: 6px; /* Mais fino e elegante */
+            width: 8px;
         }
 
+        .drawer::-webkit-scrollbar-track,
         .drawer-content::-webkit-scrollbar-track,
+        .tab-content::-webkit-scrollbar-track,
         .diagnostic-results-container::-webkit-scrollbar-track,
         #diagnostic-results::-webkit-scrollbar-track,
         .history-container::-webkit-scrollbar-track {
-            background: transparent; /* Remove fundo da track */
-            border-radius: 3px;
+            background: hsl(var(--surface-100));
+            border-radius: 4px;
         }
 
+        .drawer::-webkit-scrollbar-thumb,
         .drawer-content::-webkit-scrollbar-thumb,
+        .tab-content::-webkit-scrollbar-thumb,
         .diagnostic-results-container::-webkit-scrollbar-thumb,
         #diagnostic-results::-webkit-scrollbar-thumb,
         .history-container::-webkit-scrollbar-thumb {
             background: hsl(var(--border));
-            border-radius: 3px;
-            transition: background 0.2s ease;
+            border-radius: 4px;
+            border: 1px solid hsl(var(--surface-100));
         }
 
+        .drawer::-webkit-scrollbar-thumb:hover,
         .drawer-content::-webkit-scrollbar-thumb:hover,
+        .tab-content::-webkit-scrollbar-thumb:hover,
         .diagnostic-results-container::-webkit-scrollbar-thumb:hover,
         #diagnostic-results::-webkit-scrollbar-thumb:hover,
         .history-container::-webkit-scrollbar-thumb:hover {
             background: hsl(var(--muted-foreground));
         }
 
-        /* Tema Escuro - Barras de Rolagem */
+        /* Estilização tema escuro */
+        .dark .drawer::-webkit-scrollbar-track,
+        .dark .drawer-content::-webkit-scrollbar-track,
+        .dark .tab-content::-webkit-scrollbar-track,
+        .dark .diagnostic-results-container::-webkit-scrollbar-track,
+        .dark #diagnostic-results::-webkit-scrollbar-track,
+        .dark .history-container::-webkit-scrollbar-track {
+            background: hsl(var(--card));
+        }
+
+        .dark .drawer::-webkit-scrollbar-thumb,
         .dark .drawer-content::-webkit-scrollbar-thumb,
+        .dark .tab-content::-webkit-scrollbar-thumb,
         .dark .diagnostic-results-container::-webkit-scrollbar-thumb,
         .dark #diagnostic-results::-webkit-scrollbar-thumb,
         .dark .history-container::-webkit-scrollbar-thumb {
             background: hsl(var(--border));
+            border: 1px solid hsl(var(--card));
         }
 
+        .dark .drawer::-webkit-scrollbar-thumb:hover,
         .dark .drawer-content::-webkit-scrollbar-thumb:hover,
+        .dark .tab-content::-webkit-scrollbar-thumb:hover,
         .dark .diagnostic-results-container::-webkit-scrollbar-thumb:hover,
         .dark #diagnostic-results::-webkit-scrollbar-thumb:hover,
         .dark .history-container::-webkit-scrollbar-thumb:hover {
             background: hsl(var(--muted-foreground));
         }
 
-        /* Suporte para Firefox */
-        .drawer-content,
-        .diagnostic-results-container,
-        #diagnostic-results,
-        .history-container {
-            scrollbar-width: thin;
-            scrollbar-color: hsl(var(--border)) transparent;
-        }
-
-        .dark .drawer-content,
-        .dark .diagnostic-results-container,
-        .dark #diagnostic-results,
-        .dark .history-container {
-            scrollbar-color: hsl(var(--border)) transparent;
-        }
-
-        /* IMPORTANTE: .tab-content não deve ter scroll próprio */
-        .tab-content {
-            overflow: visible !important; /* Força remoção de qualquer scroll */
-        }
-
-        /* ========================================
-           PREVENÇÃO DE OVERFLOW E QUEBRA DE TEXTO
-           ======================================== */
-
-        /* Códigos e Pre-formatados - Aplicado a todos os elementos relevantes */
+        /* Evitar overflow horizontal em elementos de conteúdo */
         .drawer-content pre,
         .drawer-content code,
         .tab-content pre,
@@ -1168,41 +916,28 @@
             max-width: 100%;
             overflow-x: auto;
             white-space: pre-wrap;
-            word-break: break-word; /* Melhor quebra de linha */
-            background: hsl(var(--surface-200));
-            padding: var(--spacing-sm);
-            border-radius: 4px;
-            font-size: 0.875rem;
+            word-break: break-all;
         }
 
-        /* Tabelas Responsivas - Aplicado a todos os elementos relevantes */
         .drawer-content table,
         .tab-content table,
         .diagnostic-results-container table,
         #diagnostic-results table {
-            table-layout: auto; /* Permite melhor adaptação */
+            table-layout: fixed;
             width: 100%;
             max-width: 100%;
-            border-collapse: collapse;
-            margin-bottom: var(--spacing-md);
         }
 
         .drawer-content table td,
-        .drawer-content table th,
         .tab-content table td,
-        .tab-content table th,
         .diagnostic-results-container table td,
-        .diagnostic-results-container table th,
-        #diagnostic-results table td,
-        #diagnostic-results table th {
+        #diagnostic-results table td {
             word-wrap: break-word;
             overflow-wrap: break-word;
-            padding: var(--spacing-sm);
-            border: 1px solid hsl(var(--border));
-            text-align: left;
+            max-width: 0;
         }
 
-        /* Textos Longos - Aplicado a todos os elementos relevantes */
+        /* Elementos de texto longo */
         .drawer-content .long-text,
         .tab-content .long-text,
         .diagnostic-results-container .long-text,
@@ -1210,103 +945,7 @@
             word-wrap: break-word;
             overflow-wrap: break-word;
             hyphens: auto;
-            max-width: 100%;
         }
-
-        /* URLs e Links Longos - Aplicado a todos os elementos relevantes */
-        .drawer-content a[href],
-        .tab-content a[href],
-        .diagnostic-results-container a[href],
-        #diagnostic-results a[href] {
-            word-break: break-all;
-            overflow-wrap: break-word;
-        }
-
-        /* ========================================
-           CONSISTÊNCIA DE TEMA CLARO/ESCURO
-           ======================================== */
-
-        /* Aprimoramentos para Tema Escuro */
-        .dark .drawer {
-            box-shadow: -10px 0 30px hsl(var(--foreground) / 0.2);
-        }
-
-        .dark .drawer.open {
-            box-shadow: -20px 0 50px hsl(var(--foreground) / 0.25);
-        }
-
-        .dark .drawer-backdrop {
-            background: hsl(var(--background) / 0.9);
-            backdrop-filter: blur(8px);
-        }
-
-        /* Melhor contraste para elementos no tema escuro */
-        .dark .drawer-content pre,
-        .dark .drawer-content code,
-        .dark .tab-content pre,
-        .dark .tab-content code,
-        .dark .diagnostic-results-container pre,
-        .dark .diagnostic-results-container code,
-        .dark #diagnostic-results pre,
-        .dark #diagnostic-results code {
-            background: hsl(var(--card));
-            color: hsl(var(--card-foreground));
-            border: 1px solid hsl(var(--border));
-        }
-
-        .dark .drawer-content table td,
-        .dark .drawer-content table th,
-        .dark .tab-content table td,
-        .dark .tab-content table th,
-        .dark .diagnostic-results-container table td,
-        .dark .diagnostic-results-container table th,
-        .dark #diagnostic-results table td,
-        .dark #diagnostic-results table th {
-            border-color: hsl(var(--border));
-            background: hsl(var(--card));
-        }
-
-        /* Estados de Hover Aprimorados */
-        .drawer-header:hover,
-        .drawer-actions:hover {
-            background: hsl(var(--surface-200));
-        }
-
-        .dark .drawer-header:hover,
-        .dark .drawer-actions:hover {
-            background: hsl(var(--card));
-        }
-
-        /* Transições Suaves para Mudanças de Tema */
-        .drawer,
-        .drawer-backdrop,
-        .drawer-header,
-        .drawer-content,
-        .drawer-actions,
-        .close-btn {
-            transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.3s ease;
-        }
-
-        /* Foco e Acessibilidade Melhorados */
-        .drawer:focus-within .drawer-header {
-            border-bottom-color: hsl(var(--brand-primary));
-        }
-
-        .close-btn:focus {
-            outline: 2px solid hsl(var(--brand-primary));
-            outline-offset: 2px;
-        }
-
-        /* Otimizações de Performance */
-        .drawer {
-            will-change: transform;
-            contain: layout style paint;
-        }
-
-        .drawer-content {
-            contain: layout style;
-        }
-
 
 
         .close-btn {
@@ -1327,25 +966,7 @@
 
         /* Form Styles */
         .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            font-weight: 500;
-            color: hsl(var(--foreground));
-            margin-bottom: 0.75rem;
-        }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            background: hsl(var(--background));
-            border: 1px solid hsl(var(--border));
-            border-radius: 8px;
-            color: hsl(var(--foreground));
-            font-size: 0.95rem;
+            margin-bottom: 1rem;
         }
 
         .form-label {
@@ -1456,10 +1077,10 @@
             border-color: hsl(var(--warning) / 0.2);
         }
 
-        /* Credentials Content - Removido scroll próprio para seguir padrão */
+        /* Credentials Modal */
         .credentials-content {
-            /* Removido: max-height e overflow-y - deixar drawer-content gerenciar */
-            overflow: visible; /* Permite scroll pelo container pai */
+            max-height: 70vh;
+            overflow-y: auto;
         }
 
         .credentials-section {
@@ -1479,16 +1100,12 @@
         .credential-item {
             display: flex;
             align-items: center;
-            gap: 0.5rem; /* Reduzido para economizar espaço */
+            gap: 0.75rem;
             margin-bottom: 0.75rem;
             padding: 0.75rem;
             background: hsl(var(--background));
             border: 1px solid hsl(var(--border));
             border-radius: 6px;
-            max-width: 100%;
-            box-sizing: border-box;
-            overflow: hidden; /* Evita overflow horizontal */
-            flex-wrap: wrap; /* Permite quebra em telas muito pequenas */
         }
 
         .credential-label {
@@ -1496,9 +1113,6 @@
             color: hsl(var(--foreground));
             min-width: 120px;
             font-size: 0.875rem;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            flex-shrink: 0; /* Mantém largura mínima */
         }
 
         .credential-value {
@@ -1509,26 +1123,22 @@
             background: transparent;
             border: none;
             outline: none;
-            word-break: break-word; /* Melhor quebra que break-all */
-            overflow-wrap: break-word;
-            max-width: 100%;
-            box-sizing: border-box;
+            word-break: break-all;
         }
 
         .copy-btn {
             background: transparent;
             border: 1px solid hsl(var(--border));
             border-radius: 4px;
-            padding: 0.25rem; /* Reduzido */
+            padding: 0.375rem;
             cursor: pointer;
             color: hsl(var(--muted-foreground));
             transition: all 0.15s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 28px; /* Reduzido */
-            height: 28px; /* Reduzido */
-            flex-shrink: 0; /* Não permite encolher */
+            width: 32px;
+            height: 32px;
         }
 
         .copy-btn:hover {
@@ -1647,160 +1257,9 @@
             }
 
 
-            /* Status Header - INTUITIVO */
-            .instance-status-header {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                padding: 1.5rem;
-                background: hsl(var(--card));
-                border-radius: 12px;
-                border: 1px solid hsl(var(--border));
-                margin-bottom: 2rem;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            }
-
-            .status-indicator {
-                display: flex;
-                align-items: center;
-                gap: 1rem;
-            }
-
-            .status-indicator span {
-                font-weight: 500;
-                font-size: 1rem;
-            }
-
-            .btn-icon {
-                background: hsl(var(--surface-100));
-                border: 1px solid hsl(var(--border));
-                border-radius: 8px;
-                padding: 0.75rem;
-                cursor: pointer;
-                transition: all 0.2s;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 0.5rem;
-            }
-
-            .btn-icon:hover {
-                background: hsl(var(--surface-200));
-                border-color: hsl(var(--brand-primary));
-            }
-
-            .btn-icon .lucide {
-                width: 16px;
-                height: 16px;
-            }
-
-            .status-dot {
-                width: 12px;
-                height: 12px;
-                border-radius: 50%;
-                animation: pulse 2s infinite;
-            }
-
-            .status-dot.status-healthy { background: hsl(var(--success)); }
-            .status-dot.status-warning { background: hsl(var(--warning)); }
-            .status-dot.status-error { background: hsl(var(--error)); }
-            .status-dot.status-unknown { background: hsl(var(--muted-foreground)); }
-
-            /* Action Cards - COMPLETO e INTUITIVO */
-            .diagnostic-actions-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-                gap: 1rem;
-                margin-bottom: 2rem;
-            }
-
-            .action-card {
-                background: hsl(var(--card));
-                border: 1px solid hsl(var(--border));
-                border-radius: 12px;
-                padding: 1.5rem;
-                transition: all 0.2s ease;
-                position: relative;
-                overflow: hidden;
-            }
-
-            .action-card:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-                border-color: hsl(var(--brand-primary));
-            }
-
-            .action-card.primary { border-left: 4px solid hsl(var(--brand-primary)); }
-            .action-card.secondary { border-left: 4px solid hsl(var(--muted-foreground)); }
-            .action-card.warning { border-left: 4px solid hsl(var(--warning)); }
-
-            .action-header {
-                display: flex;
-                align-items: center;
-                gap: 1rem;
-                margin-bottom: 1.5rem;
-            }
-
-            .action-header .lucide {
-                width: 24px;
-                height: 24px;
-                color: hsl(var(--brand-primary));
-            }
-
-            .action-card.warning .action-header .lucide {
-                color: hsl(var(--warning));
-            }
-
-            .action-header h3 {
-                margin: 0;
-                font-size: 1.1rem;
-                font-weight: 600;
-                color: hsl(var(--foreground));
-            }
-
-            .action-card p {
-                color: hsl(var(--muted-foreground));
-                margin-bottom: 1.5rem;
-                font-size: 0.95rem;
-                line-height: 1.5;
-                margin-top: 0.5rem;
-            }
-
-            .btn-block {
-                width: 100%;
-                justify-content: center;
-                gap: 0.75rem;
-                padding: 0.875rem 1.5rem;
-            }
-
-            .btn .lucide {
-                width: 16px;
-                height: 16px;
-            }
-
-            /* Empty State - INTUITIVO */
-            .empty-state {
-                text-align: center;
-                padding: 3rem 1rem;
-                color: hsl(var(--muted-foreground));
-            }
-
-            .empty-state .lucide-lg {
-                width: 48px;
-                height: 48px;
-                margin-bottom: 1rem;
-                opacity: 0.5;
-            }
-
-            .empty-state h3 {
-                margin: 0 0 0.5rem 0;
-                font-size: 1.2rem;
-                font-weight: 500;
-            }
-
             /* Ajustes específicos para modal de diagnósticos */
             .tab-content {
-                /* Removido max-height - deixar o drawer-content gerenciar */
+                max-height: calc(100vh - 12rem);
                 min-height: 250px;
             }
 
@@ -2312,26 +1771,6 @@
         </div>
     </div>
 
-    <!-- Drawer de Saúde da Instância -->
-    <div id="instance-health-backdrop" class="drawer-backdrop" onclick="closeInstanceHealthDrawer()"></div>
-    <div id="instance-health-drawer" class="drawer drawer-medium">
-        <div class="drawer-header">
-            <h3 class="drawer-title" id="instance-health-drawer-title">
-                <i data-lucide="heart-pulse" class="lucide"></i>
-                Saúde da Instância
-            </h3>
-            <button class="close-btn" onclick="closeInstanceHealthDrawer()">&times;</button>
-        </div>
-        <div class="drawer-content">
-            <div id="instance-health-content">
-                <div class="loading-section">
-                    <div class="spinner"></div>
-                    <p>Carregando status de saúde...</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script>
         // State Management
         let projects = [];
@@ -2362,16 +1801,12 @@
 
         // Initialize App
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🔧 DEBUG: JavaScript carregado, DOM pronto');
-            
             // Initialize Lucide icons
             lucide.createIcons();
             
             initializeHeader();
             checkConnection();
             loadProjects();
-            
-            // REMOVIDO: Debug de funções de diagnóstico antigas
             
             // Event Listeners
             document.getElementById('new-project-btn').addEventListener('click', openModal);
@@ -2547,9 +1982,9 @@
                                     <i data-lucide="copy" class="lucide lucide-sm"></i>
                                     <span>.env</span>
                                 </button>
-                                <button onclick="showInstanceHealthPanel('${project.id}', '${project.name}')" class="btn btn-outline btn-small">
-                                    <i data-lucide="heart-pulse" class="lucide lucide-sm"></i>
-                                    <span>Saúde</span>
+                                <button onclick="showDiagnosticPanel('${project.id}', '${project.name}')" class="btn btn-outline btn-small">
+                                    <i data-lucide="activity" class="lucide lucide-sm"></i>
+                                    <span>Diagnósticos</span>
                                 </button>
                             </div>
                             
@@ -2963,7 +2398,12 @@
                     showAlert(`✅ ${result.message}`, 'success');
                     loadProjects(); // Atualizar lista para mostrar novo status
                     
-                    // REMOVIDO: Sugestão de diagnóstico substituída pelo novo sistema de saúde
+                    // Sugerir diagnóstico após parar
+                    setTimeout(() => {
+                        if (confirm('Deseja executar um diagnóstico para verificar o estado da instância?')) {
+                            showDiagnosticPanel(id, name);
+                        }
+                    }, 1000);
                 } else {
                     throw new Error(result.error || 'Erro ao parar instância');
                 }
@@ -3036,7 +2476,19 @@
                     showAlert(`✅ Instância reiniciada com sucesso`, 'success');
                     loadProjects(); // Atualizar lista para mostrar novo status
                     
-                    // REMOVIDO: Diagnóstico automático substituído pelo novo sistema de saúde
+                    // Executar diagnóstico automático após reiniciar
+                    setTimeout(() => {
+                        showAlert('Executando diagnóstico pós-reinicialização...', 'info');
+                        // Abrir modal de diagnósticos e executar automaticamente
+                        showDiagnosticPanel(id, name);
+                        setTimeout(() => {
+                            if (typeof runDiagnostic === 'function') {
+                                runDiagnostic();
+                            } else {
+                                console.warn('Função runDiagnostic não disponível');
+                            }
+                        }, 500);
+                    }, 2000);
                 } else {
                     throw new Error(startResult.error || 'Erro ao iniciar instância após parar');
                 }
@@ -3523,84 +2975,6 @@ INSERT INTO users (email) VALUES ('test@example.com');" rows="8"></textarea>
                                     <i data-lucide="book" class="lucide lucide-sm"></i>
                                     API Docs
                                 </button>
-                            </div>
-                        </div>
-
-                        <div class="automation-section">
-                            <h4><i data-lucide="webhook" class="lucide lucide-sm"></i> Webhook SQL para Cursor IDE</h4>
-                            <p class="automation-description">Configure um webhook seguro para executar SQL diretamente do Cursor IDE:</p>
-                            
-                            <div class="webhook-config">
-                                <div class="webhook-permissions">
-                                    <label for="webhook-permission-level">Nível de Permissão:</label>
-                                    <select id="webhook-permission-level" class="webhook-select">
-                                        <option value="read_only">🔍 Apenas Leitura (SELECT)</option>
-                                        <option value="standard" selected>📝 Padrão (SELECT, INSERT, UPDATE)</option>
-                                        <option value="developer">⚙️ Desenvolvedor (+CREATE/ALTER)</option>
-                                        <option value="admin">👑 Administrador (Acesso Completo)</option>
-                                    </select>
-                                </div>
-                                
-                                <div class="webhook-actions">
-                                    <button class="btn btn-primary" onclick="createSQLWebhook('${config.project_id}')">
-                                        <i data-lucide="plus" class="lucide lucide-sm"></i>
-                                        Criar Webhook
-                                    </button>
-                                    <button class="btn btn-secondary" onclick="listWebhooks('${config.project_id}')">
-                                        <i data-lucide="list" class="lucide lucide-sm"></i>
-                                        Gerenciar Webhooks
-                                    </button>
-                                </div>
-                                
-                                <div id="webhook-result" class="webhook-result" style="display: none;">
-                                    <div class="webhook-url-container">
-                                        <label>URL do Webhook (copie para o Cursor):</label>
-                                        <div class="webhook-url-display">
-                                            <input type="text" id="webhook-url" readonly class="webhook-url-input">
-                                            <button class="copy-btn" onclick="copyWebhookUrl()">
-                                                <i data-lucide="copy" class="lucide lucide-sm"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="webhook-details">
-                                        <div class="webhook-info">
-                                            <div class="info-item">
-                                                <strong>Rate Limits:</strong> <span id="webhook-rate-limits">30 req/min, 1000/dia</span>
-                                            </div>
-                                            <div class="info-item">
-                                                <strong>Expira em:</strong> <span id="webhook-expires"></span>
-                                            </div>
-                                            <div class="info-item">
-                                                <strong>Token:</strong> <code id="webhook-token" class="webhook-token"></code>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="webhook-usage-example">
-                                        <h5><i data-lucide="code-2" class="lucide lucide-xs"></i> Exemplo de Uso no Cursor:</h5>
-                                        <div class="code-block">
-                                            <button class="copy-btn" onclick="copyToClipboard(document.getElementById('cursor-webhook-code').textContent)">
-                                                <i data-lucide="copy" class="lucide lucide-sm"></i>
-                                            </button>
-                                            <pre id="cursor-webhook-code">// Executar SQL via Webhook no Cursor IDE
-const response = await fetch('URL_DO_WEBHOOK_AQUI', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'X-Webhook-Token': 'SEU_TOKEN_AQUI'
-  },
-  body: JSON.stringify({
-    query: 'SELECT * FROM users LIMIT 10;',
-    transaction_id: \`cursor_\${Date.now()}\`
-  })
-});
-
-const result = await response.json();
-console.log(result);</pre>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                         </div>
 
@@ -5007,163 +4381,6 @@ CREATE POLICY "Users can create posts" ON public.posts
             showAlert('Templates carregados! Use os exemplos acima.', 'success');
         }
 
-        // Webhook SQL Functions
-        async function createSQLWebhook(projectId) {
-            const permissionLevel = document.getElementById('webhook-permission-level').value;
-            const webhookResult = document.getElementById('webhook-result');
-            
-            try {
-                showAlert('Criando webhook SQL...', 'info');
-                
-                const response = await fetch(`/api/instances/${projectId}/create-webhook`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ 
-                        permissions: permissionLevel,
-                        name: `Cursor Webhook - ${new Date().toLocaleDateString()}`,
-                        description: `Webhook para execução SQL via Cursor IDE (${permissionLevel})`
-                    })
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    // Mostrar resultado do webhook
-                    const webhookUrl = result.webhook_url;
-                    const token = result.webhook.token;
-                    const expiresAt = new Date(result.webhook.expires_at).toLocaleDateString('pt-BR');
-                    const rateLimits = `${result.webhook.rate_limits.requests_per_minute} req/min, ${result.webhook.rate_limits.daily_quota}/dia`;
-                    
-                    document.getElementById('webhook-url').value = webhookUrl;
-                    document.getElementById('webhook-token').textContent = token;
-                    document.getElementById('webhook-expires').textContent = expiresAt;
-                    document.getElementById('webhook-rate-limits').textContent = rateLimits;
-                    
-                    // Atualizar exemplo de código
-                    const exampleCode = `// Executar SQL via Webhook no Cursor IDE
-const response = await fetch('${webhookUrl}', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'X-Webhook-Token': '${token}'
-  },
-  body: JSON.stringify({
-    query: 'SELECT * FROM users LIMIT 10;',
-    transaction_id: \`cursor_\${Date.now()}\`
-  })
-});
-
-const result = await response.json();
-console.log(result);`;
-                    
-                    document.getElementById('cursor-webhook-code').textContent = exampleCode;
-                    
-                    webhookResult.style.display = 'block';
-                    showAlert('✅ Webhook SQL criado com sucesso!', 'success');
-                } else {
-                    showAlert(`Erro ao criar webhook: ${result.error}`, 'error');
-                }
-            } catch (error) {
-                console.error('Erro ao criar webhook:', error);
-                showAlert('Erro ao criar webhook. Verifique o console para detalhes.', 'error');
-            }
-        }
-
-        async function listWebhooks(projectId) {
-            try {
-                showAlert('Carregando webhooks...', 'info');
-                
-                const response = await fetch(`/api/instances/${projectId}/webhooks`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                const result = await response.json();
-                
-                if (result.success && result.webhooks.length > 0) {
-                    let webhooksList = '<h4>Webhooks Existentes:</h4><div class="webhooks-list">';
-                    
-                    result.webhooks.forEach(webhook => {
-                        const status = webhook.status === 'active' ? '🟢 Ativo' : '🔴 Inativo';
-                        const created = new Date(webhook.created_at).toLocaleDateString('pt-BR');
-                        const expires = new Date(webhook.expires_at).toLocaleDateString('pt-BR');
-                        
-                        webhooksList += `
-                            <div class="webhook-item">
-                                <h5>${webhook.metadata.name} ${status}</h5>
-                                <p><strong>Permissões:</strong> ${webhook.permissions}</p>
-                                <p><strong>Criado:</strong> ${created} | <strong>Expira:</strong> ${expires}</p>
-                                <p><strong>Uso:</strong> ${webhook.usage_stats.total_requests} requests total</p>
-                                <button class="btn btn-danger btn-sm" onclick="revokeWebhook('${projectId}', '${webhook.id}')">
-                                    <i data-lucide="trash-2" class="lucide lucide-xs"></i> Revogar
-                                </button>
-                            </div>
-                        `;
-                    });
-                    
-                    webhooksList += '</div>';
-                    
-                    // Mostrar em modal ou atualizar drawer
-                    showAlert(webhooksList, 'info', 10000);
-                } else if (result.success && result.webhooks.length === 0) {
-                    showAlert('Nenhum webhook encontrado. Crie o primeiro webhook!', 'info');
-                } else {
-                    showAlert(`Erro ao listar webhooks: ${result.error}`, 'error');
-                }
-            } catch (error) {
-                console.error('Erro ao listar webhooks:', error);
-                showAlert('Erro ao listar webhooks. Verifique o console para detalhes.', 'error');
-            }
-        }
-
-        async function revokeWebhook(projectId, webhookId) {
-            if (!confirm('Tem certeza que deseja revogar este webhook? Esta ação não pode ser desfeita.')) {
-                return;
-            }
-            
-            try {
-                showAlert('Revogando webhook...', 'info');
-                
-                const response = await fetch(`/api/instances/${projectId}/webhooks/${webhookId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    showAlert('✅ Webhook revogado com sucesso!', 'success');
-                    // Recarregar lista
-                    setTimeout(() => listWebhooks(projectId), 1000);
-                } else {
-                    showAlert(`Erro ao revogar webhook: ${result.error}`, 'error');
-                }
-            } catch (error) {
-                console.error('Erro ao revogar webhook:', error);
-                showAlert('Erro ao revogar webhook. Verifique o console para detalhes.', 'error');
-            }
-        }
-
-        function copyWebhookUrl() {
-            const webhookUrl = document.getElementById('webhook-url');
-            webhookUrl.select();
-            webhookUrl.setSelectionRange(0, 99999); // Para dispositivos móveis
-            
-            try {
-                document.execCommand('copy');
-                showAlert('✅ URL do webhook copiada!', 'success');
-            } catch (err) {
-                console.error('Erro ao copiar:', err);
-                showAlert('Erro ao copiar URL. Use Ctrl+C manualmente.', 'error');
-            }
-        }
-
         // Change Password Modal Management
         function openChangePasswordModal() {
             const drawer = document.getElementById('change-password-drawer');
@@ -5328,261 +4545,6 @@ console.log(result);`;
             document.getElementById('change-instance-credentials-form').reset();
             document.getElementById('change-instance-credentials-error').style.display = 'none';
             currentInstanceForCredentials = null;
-        }
-
-        // Instance Health Functions
-        let currentHealthInstanceId = null;
-        let currentHealthInstanceName = null;
-
-        async function showInstanceHealthPanel(instanceId, instanceName) {
-            currentHealthInstanceId = instanceId;
-            currentHealthInstanceName = instanceName;
-            
-            const drawer = document.getElementById('instance-health-drawer');
-            const backdrop = document.getElementById('instance-health-backdrop');
-            const title = document.getElementById('instance-health-drawer-title');
-            const content = document.getElementById('instance-health-content');
-            
-            if (!drawer || !backdrop || !title || !content) {
-                console.error('Elementos do drawer de saúde não encontrados');
-                return;
-            }
-
-            // Atualizar título
-            title.innerHTML = `<i data-lucide="heart-pulse" class="lucide"></i> Saúde - ${instanceName}`;
-            
-            // Mostrar drawer
-            backdrop.classList.add('visible');
-            drawer.classList.add('open');
-
-            // Inicializar conteúdo como loading
-            content.innerHTML = `
-                <div class="loading-section">
-                    <div class="spinner"></div>
-                    <p>Verificando saúde da instância...</p>
-                </div>
-            `;
-
-            // Carregar dados de saúde
-            await loadInstanceHealth(instanceId);
-            
-            // Atualizar ícones
-            setTimeout(() => {
-                if (typeof lucide !== 'undefined' && lucide.createIcons) {
-                    lucide.createIcons();
-                }
-            }, 100);
-        }
-
-        async function loadInstanceHealth(instanceId) {
-            const content = document.getElementById('instance-health-content');
-            
-            try {
-                console.log(`🔍 Carregando saúde da instância ${instanceId}`);
-                
-                const response = await fetch(`/api/instances/${instanceId}/health`);
-                const data = await response.json();
-                
-                if (response.ok && data.success) {
-                    renderInstanceHealth(data.health);
-                } else {
-                    throw new Error(data.error || 'Erro ao carregar dados de saúde');
-                }
-            } catch (error) {
-                console.error('Erro ao carregar saúde da instância:', error);
-                content.innerHTML = `
-                    <div class="error-message">
-                        <i data-lucide="alert-circle" class="lucide lucide-sm"></i>
-                        <p>Erro ao carregar dados de saúde: ${error.message}</p>
-                        <button onclick="loadInstanceHealth('${instanceId}')" class="btn btn-outline btn-small">
-                            <i data-lucide="refresh-cw" class="lucide lucide-sm"></i>
-                            Tentar Novamente
-                        </button>
-                    </div>
-                `;
-            }
-        }
-
-        function renderInstanceHealth(health) {
-            const content = document.getElementById('instance-health-content');
-            
-            // Preparar dados dos serviços
-            const services = [];
-            
-            // Containers
-            if (health.containers) {
-                Object.entries(health.containers).forEach(([containerName, status]) => {
-                    const serviceName = containerName.replace(`-${currentHealthInstanceId}`, '').replace('supabase-', '');
-                    services.push({
-                        name: getServiceDisplayName(serviceName),
-                        status: status.healthy ? 'healthy' : 'unhealthy',
-                        details: status
-                    });
-                });
-            }
-            
-            // Database
-            if (health.database) {
-                services.push({
-                    name: 'Database Connection',
-                    status: health.database.healthy ? 'healthy' : 'unhealthy',
-                    details: health.database
-                });
-            }
-            
-            // Endpoints
-            if (health.endpoints && !health.endpoints.error) {
-                Object.entries(health.endpoints).forEach(([endpointName, status]) => {
-                    services.push({
-                        name: `${endpointName.toUpperCase()} Endpoint`,
-                        status: status.healthy ? 'healthy' : 'unhealthy',
-                        details: status
-                    });
-                });
-            }
-
-            content.innerHTML = `
-                <div class="health-overview">
-                    <div class="health-score">
-                        <div class="score-number">${health.health.score}%</div>
-                        <div class="score-label">Score de Saúde</div>
-                    </div>
-                    <div class="health-status">
-                        <span class="status-indicator ${health.health.status}"></span>
-                        <span class="status-text">${getStatusText(health.health.status)}</span>
-                    </div>
-                </div>
-
-                <h4><i data-lucide="server" class="lucide lucide-sm"></i> Status dos Serviços</h4>
-                <div class="services-grid">
-                    ${services.map(service => `
-                        <div class="service-item">
-                            <span class="service-name">${service.name}</span>
-                            <span class="service-status ${service.status}">
-                                ${service.status === 'healthy' ? '✅' : '❌'}
-                            </span>
-                        </div>
-                    `).join('')}
-                </div>
-
-                <div class="health-actions">
-                    <button onclick="refreshInstanceHealth()" class="btn btn-primary">
-                        <i data-lucide="refresh-cw" class="lucide lucide-sm"></i>
-                        Verificar Novamente
-                    </button>
-                    <button onclick="restartInstanceServices()" class="btn btn-warning">
-                        <i data-lucide="rotate-ccw" class="lucide lucide-sm"></i>
-                        Reiniciar Serviços
-                    </button>
-                </div>
-
-                <div class="quick-actions">
-                    <h5>Reiniciar Serviço Específico:</h5>
-                    <div class="service-buttons">
-                        <button onclick="restartSpecificService('db')" class="btn btn-sm btn-secondary">Database</button>
-                        <button onclick="restartSpecificService('kong')" class="btn btn-sm btn-secondary">Kong</button>
-                        <button onclick="restartSpecificService('auth')" class="btn btn-sm btn-secondary">Auth</button>
-                        <button onclick="restartSpecificService('rest')" class="btn btn-sm btn-secondary">REST</button>
-                        <button onclick="restartSpecificService('studio')" class="btn btn-sm btn-secondary">Studio</button>
-                    </div>
-                </div>
-            `;
-        }
-
-        function getServiceDisplayName(serviceName) {
-            const displayNames = {
-                'db': 'PostgreSQL Database',
-                'kong': 'Kong Gateway',
-                'auth': 'Auth Service',
-                'rest': 'PostgREST API',
-                'studio': 'Supabase Studio'
-            };
-            return displayNames[serviceName] || serviceName;
-        }
-
-        function getStatusText(status) {
-            const statusTexts = {
-                'healthy': 'Saudável',
-                'degraded': 'Degradado',
-                'unhealthy': 'Problemático',
-                'critical': 'Crítico'
-            };
-            return statusTexts[status] || status;
-        }
-
-        async function refreshInstanceHealth() {
-            if (!currentHealthInstanceId) return;
-            await loadInstanceHealth(currentHealthInstanceId);
-            setTimeout(() => {
-                if (typeof lucide !== 'undefined' && lucide.createIcons) {
-                    lucide.createIcons();
-                }
-            }, 100);
-        }
-
-        async function restartInstanceServices() {
-            if (!currentHealthInstanceId || !currentHealthInstanceName) return;
-            
-            if (!confirm(`🔄 Tem certeza que deseja reiniciar todos os serviços da instância "${currentHealthInstanceName}"?\n\n⚠️ Esta ação pode causar indisponibilidade temporária.`)) {
-                return;
-            }
-
-            try {
-                showAlert('🔄 Reiniciando serviços... Aguarde...', 'info');
-                
-                const response = await fetch(`/api/instances/${currentHealthInstanceId}/restart-services`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ forceAll: false })
-                });
-                
-                const result = await response.json();
-                
-                if (response.ok && result.success) {
-                    showAlert('✅ Serviços reiniciados com sucesso!', 'success');
-                    setTimeout(() => refreshInstanceHealth(), 2000);
-                } else {
-                    throw new Error(result.error || 'Erro ao reiniciar serviços');
-                }
-            } catch (error) {
-                console.error('Erro ao reiniciar serviços:', error);
-                showAlert(`❌ Erro ao reiniciar serviços: ${error.message}`, 'error');
-            }
-        }
-
-        async function restartSpecificService(serviceName) {
-            if (!currentHealthInstanceId || !currentHealthInstanceName) return;
-            
-            if (!confirm(`🔄 Tem certeza que deseja reiniciar o serviço "${getServiceDisplayName(serviceName)}"?`)) {
-                return;
-            }
-
-            try {
-                showAlert(`🔄 Reiniciando ${getServiceDisplayName(serviceName)}...`, 'info');
-                
-                const response = await fetch(`/api/instances/${currentHealthInstanceId}/restart-service/${serviceName}`, {
-                    method: 'POST'
-                });
-                
-                const result = await response.json();
-                
-                if (response.ok && result.success) {
-                    showAlert(`✅ ${getServiceDisplayName(serviceName)} reiniciado com sucesso!`, 'success');
-                    setTimeout(() => refreshInstanceHealth(), 2000);
-                } else {
-                    throw new Error(result.error || 'Erro ao reiniciar serviço');
-                }
-            } catch (error) {
-                console.error(`Erro ao reiniciar serviço ${serviceName}:`, error);
-                showAlert(`❌ Erro ao reiniciar serviço: ${error.message}`, 'error');
-            }
-        }
-
-        function closeInstanceHealthDrawer() {
-            document.getElementById('instance-health-drawer').classList.remove('open');
-            document.getElementById('instance-health-backdrop').classList.remove('visible');
-            currentHealthInstanceId = null;
-            currentHealthInstanceName = null;
         }
         
         // Change Instance Credentials Form Handler
@@ -5947,27 +4909,22 @@ console.log(result);`;
             font-weight: 500;
         }
 
-        /* Template Grid Styles - Adaptado para drawer */
+        /* Template Grid Styles */
         .template-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 0.75rem;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
             margin: 1rem 0;
-            max-width: 100%;
-            box-sizing: border-box;
         }
 
         .template-card {
-            padding: 0.75rem;
+            padding: 1rem;
             border: 1px solid hsl(var(--border));
             border-radius: 8px;
             background: hsl(var(--card));
             cursor: pointer;
             transition: all 0.2s ease;
             text-align: center;
-            max-width: 100%;
-            box-sizing: border-box;
-            overflow: hidden; /* Evita overflow de conteúdo */
         }
 
         .template-card:hover {
@@ -6020,21 +4977,18 @@ console.log(result);`;
         .text-success { color: hsl(var(--success)); }
         .text-warning { color: hsl(var(--warning)); }
 
-        /* Toggle Button Styles - Compacto para drawer */  
+        /* Toggle Button Styles */  
         .toggle-btn {
             background: hsl(var(--surface-100));
             border: 1px solid hsl(var(--border));
             border-radius: 4px;
-            padding: 0.25rem; /* Reduzido */
+            padding: 0.5rem;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.2s;
-            margin-right: 0.25rem; /* Reduzido */
-            width: 28px; /* Tamanho fixo compacto */
-            height: 28px;
-            flex-shrink: 0; /* Não permite encolher */
+            margin-right: 0.5rem;
         }
 
         .toggle-btn:hover {
@@ -6161,17 +5115,8 @@ console.log(result);`;
 
         .test-buttons {
             display: flex;
-            gap: 0.75rem;
+            gap: 1rem;
             margin-bottom: 1rem;
-            flex-wrap: wrap; /* Permite quebra de linha em telas pequenas */
-            max-width: 100%;
-            box-sizing: border-box;
-        }
-
-        .test-buttons .btn {
-            flex: 1;
-            min-width: 0; /* Permite que o flex shrink funcione */
-            max-width: 100%;
         }
 
         .test-results {
@@ -6225,147 +5170,6 @@ console.log(result);`;
             border-radius: 6px;
             padding: 1rem;
             margin-top: 1rem;
-        }
-
-        /* Webhook Configuration Styles */
-        .webhook-config {
-            background: hsl(var(--surface-100));
-            border: 1px solid hsl(var(--border));
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-top: 1rem;
-        }
-
-        .webhook-permissions {
-            margin-bottom: 1.5rem;
-        }
-
-        .webhook-permissions label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: hsl(var(--foreground));
-        }
-
-        .webhook-select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid hsl(var(--border));
-            border-radius: 6px;
-            background: hsl(var(--background));
-            color: hsl(var(--foreground));
-            font-size: 0.875rem;
-        }
-
-        .webhook-actions {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-        }
-
-        .webhook-result {
-            background: hsl(var(--surface-200));
-            border: 1px solid hsl(var(--border));
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-top: 1rem;
-        }
-
-        .webhook-url-container {
-            margin-bottom: 1.5rem;
-        }
-
-        .webhook-url-container label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: hsl(var(--foreground));
-        }
-
-        .webhook-url-display {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
-
-        .webhook-url-input {
-            flex: 1;
-            padding: 0.75rem;
-            border: 1px solid hsl(var(--border));
-            border-radius: 6px;
-            background: hsl(var(--background));
-            color: hsl(var(--foreground));
-            font-family: 'Fira Code', monospace;
-            font-size: 0.75rem;
-        }
-
-        .webhook-details {
-            margin-bottom: 1.5rem;
-        }
-
-        .webhook-info {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .info-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid hsl(var(--border));
-        }
-
-        .info-item:last-child {
-            border-bottom: none;
-        }
-
-        .webhook-token {
-            background: hsl(var(--surface-100));
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            font-family: 'Fira Code', monospace;
-            font-size: 0.75rem;
-            border: 1px solid hsl(var(--border));
-            max-width: 200px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .webhook-usage-example h5 {
-            margin-bottom: 1rem;
-            color: hsl(var(--foreground));
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .webhook-usage-example .code-block {
-            margin-top: 0.5rem;
-        }
-
-        @media (max-width: 768px) {
-            .webhook-actions {
-                flex-direction: column;
-            }
-
-            .webhook-url-display {
-                flex-direction: column;
-                gap: 0.75rem;
-            }
-
-            .info-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.25rem;
-            }
-
-            .webhook-token {
-                max-width: none;
-                width: 100%;
-            }
         }
 
         .sql-result-table pre {
@@ -6557,7 +5361,8 @@ console.log(result);`;
     </script>
 
     <!-- Drawer de Diagnósticos -->
-    <!-- REMOVIDO: Drawer de diagnósticos antigo substituído pelo drawer de saúde -->
+    <div id="diagnostic-backdrop" class="drawer-backdrop" onclick="closeDiagnosticDrawer()"></div>
+    <div id="diagnostic-drawer" class="drawer drawer-xl">
         <div class="drawer-header">
             <h2 class="drawer-title" id="diagnostic-drawer-title">
                 <i data-lucide="activity" class="lucide"></i>
@@ -6567,104 +5372,36 @@ console.log(result);`;
         </div>
         <div class="drawer-content">
             
-            <!-- Status da Instância - SEMPRE VISÍVEL -->
-            <div class="instance-status-header">
-                <div class="status-indicator">
-                    <div class="status-dot status-unknown"></div>
-                    <span id="instance-status-text">Verificando status...</span>
-                </div>
-                <button id="refresh-status-btn" class="btn-icon" onclick="quickStatusCheck()" title="Atualizar status">
-                    <i data-lucide="refresh-cw" class="lucide lucide-sm"></i>
-                </button>
-            </div>
-
             <div class="diagnostic-tabs">
-                <button class="tab-btn active" onclick="switchDiagnosticTab('current')">
-                    <i data-lucide="zap" class="lucide lucide-sm"></i>
-                    Diagnóstico
-                </button>
-                <button class="tab-btn" onclick="switchDiagnosticTab('history')">
-                    <i data-lucide="clock" class="lucide lucide-sm"></i>
-                    Histórico
-                </button>
-                <button class="tab-btn" onclick="switchDiagnosticTab('schedule')">
-                    <i data-lucide="calendar" class="lucide lucide-sm"></i>
-                    Agendamento
-                </button>
+                <button class="tab-btn active" onclick="switchDiagnosticTab('current')">Diagnóstico Atual</button>
+                <button class="tab-btn" onclick="switchDiagnosticTab('history')">Histórico</button>
+                <button class="tab-btn" onclick="switchDiagnosticTab('schedule')">Agendamento</button>
+                <button class="tab-btn" onclick="switchDiagnosticTab('reports')">Relatórios</button>
             </div>
 
             <!-- Aba Diagnóstico Atual -->
             <div id="diagnostic-current" class="tab-content active">
-                
-                <div class="section-header">
-                    <i data-lucide="zap" class="lucide"></i>
-                    <h3>Ações de Diagnóstico</h3>
+                <div class="diagnostic-controls">
+                    <button id="run-diagnostic-btn" class="btn btn-primary" onclick="runDiagnostic()">
+                        <i data-lucide="activity" class="lucide lucide-sm"></i>
+                        Executar Diagnóstico Agora
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadLastDiagnostic()">
+                        <i data-lucide="clock" class="lucide lucide-sm"></i>
+                        Ver Último Diagnóstico
+                    </button>
+                    <button id="analyze-problems-btn" class="btn btn-warning" onclick="analyzeInstanceProblems()" style="display: none;">
+                        <i data-lucide="wrench" class="lucide lucide-sm"></i>
+                        Analisar Problemas
+                    </button>
                 </div>
-                
-                <!-- Ações Principais - Layout em Cards -->
-                <div class="diagnostic-actions-grid">
-                    <div class="action-card primary">
-                        <div class="action-header">
-                            <i data-lucide="zap" class="lucide"></i>
-                            <h3>Diagnóstico Completo</h3>
-                        </div>
-                        <p>Verifica todos os serviços, containers e conectividade</p>
-                        <button id="run-diagnostic-btn" class="btn btn-primary btn-block" onclick="runDiagnostic()">
-                            <i data-lucide="play" class="lucide lucide-sm"></i>
-                            Executar Agora
-                        </button>
-                    </div>
-
-                    <div class="action-card secondary">
-                        <div class="action-header">
-                            <i data-lucide="clock" class="lucide"></i>
-                            <h3>Último Diagnóstico</h3>
-                        </div>
-                        <p>Visualizar resultados do diagnóstico anterior</p>
-                        <button class="btn btn-secondary btn-block" onclick="loadLastDiagnostic()">
-                            <i data-lucide="eye" class="lucide lucide-sm"></i>
-                            Ver Resultados
-                        </button>
-                    </div>
-
-                    <div class="action-card warning" id="problems-card" style="display: none;">
-                        <div class="action-header">
-                            <i data-lucide="alert-triangle" class="lucide"></i>
-                            <h3>Problemas Detectados</h3>
-                        </div>
-                        <p>Analisar e corrigir problemas encontrados</p>
-                        <button id="analyze-problems-btn" class="btn btn-warning btn-block" onclick="analyzeInstanceProblems()">
-                            <i data-lucide="wrench" class="lucide lucide-sm"></i>
-                            Analisar & Corrigir
-                        </button>
-                    </div>
-                </div>
-
-                <div class="section-divider"></div>
-                
-                <div class="section-header">
-                    <i data-lucide="activity" class="lucide"></i>
-                    <h3>Resultados do Diagnóstico</h3>
-                </div>
-
-                <!-- Resultados do Diagnóstico -->
                 <div id="diagnostic-results" class="diagnostic-results-container">
-                    <div class="empty-state">
-                        <i data-lucide="activity" class="lucide-lg"></i>
-                        <h3>Nenhum diagnóstico executado</h3>
-                        <p class="text-muted">Execute um diagnóstico para ver o status detalhado da instância</p>
-                    </div>
+                    <p class="text-muted">Execute um diagnóstico para ver os resultados aqui.</p>
                 </div>
             </div>
 
             <!-- Aba Histórico -->
             <div id="diagnostic-history" class="tab-content">
-                
-                <div class="section-header">
-                    <i data-lucide="clock" class="lucide"></i>
-                    <h3>Controles de Histórico</h3>
-                </div>
-                
                 <div class="diagnostic-controls">
                     <label>Mostrar últimas:</label>
                     <select id="history-limit" onchange="loadDiagnosticHistory()">
@@ -6677,14 +5414,6 @@ console.log(result);`;
                         Atualizar
                     </button>
                 </div>
-                
-                <div class="section-divider"></div>
-                
-                <div class="section-header">
-                    <i data-lucide="database" class="lucide"></i>
-                    <h3>Registros de Diagnóstico</h3>
-                </div>
-                
                 <div id="history-results" class="history-container">
                     <p class="text-muted">Carregando histórico...</p>
                 </div>
@@ -6692,12 +5421,6 @@ console.log(result);`;
 
             <!-- Aba Agendamento -->
             <div id="diagnostic-schedule" class="tab-content">
-                
-                <div class="section-header">
-                    <i data-lucide="calendar" class="lucide"></i>
-                    <h3>Configuração de Agendamento</h3>
-                </div>
-                
                 <div class="schedule-config">
                     <div class="form-group">
                         <label>Intervalo de Execução:</label>
@@ -6735,14 +5458,6 @@ console.log(result);`;
                         </button>
                     </div>
                 </div>
-                
-                <div class="section-divider"></div>
-                
-                <div class="section-header">
-                    <i data-lucide="code" class="lucide"></i>
-                    <h3>Script Cron</h3>
-                </div>
-                
                 <div id="cron-output" class="cron-script-container hidden">
                     <h4>Script Cron Gerado:</h4>
                     <pre id="cron-script"></pre>
@@ -6781,56 +5496,32 @@ console.log(result);`;
     <style>
         .diagnostic-tabs {
             display: flex;
-            border-bottom: 2px solid hsl(var(--border));
-            margin-bottom: 2rem;
-            background: hsl(var(--card));
-            border-radius: 12px 12px 0 0;
-            padding: 0 1rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-bottom: 1px solid hsl(var(--border));
+            margin-bottom: 1rem;
         }
 
         .tab-btn {
             background: none;
             border: none;
-            padding: 1rem 1.5rem;
+            padding: 0.75rem 1rem;
             cursor: pointer;
-            border-bottom: 3px solid transparent;
+            border-bottom: 2px solid transparent;
             color: hsl(var(--muted-foreground));
             transition: all 0.2s;
-            font-weight: 500;
-            border-radius: 8px 8px 0 0;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .tab-btn .lucide {
-            width: 18px;
-            height: 18px;
         }
 
         .tab-btn.active {
             color: hsl(var(--brand-primary));
             border-bottom-color: hsl(var(--brand-primary));
-            background: hsl(var(--background));
-            font-weight: 600;
-        }
-
-        .tab-btn:hover:not(.active) {
-            color: hsl(var(--foreground));
-            background: hsl(var(--surface-100) / 0.5);
         }
 
         .tab-content {
             display: none;
             min-height: 400px;
-            /* Removido: max-height e overflow - deixar o drawer-content gerenciar o scroll */
-            overflow: visible; /* Permite que o conteúdo seja scrollado pelo container pai */
-            padding: 1.5rem;
-            margin-top: 1rem;
-            background: hsl(var(--background));
-            border-radius: 12px;
-            border: 1px solid hsl(var(--border));
+            max-height: calc(70vh - 8rem);
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-right: 0.5rem;
             word-wrap: break-word;
             box-sizing: border-box;
         }
@@ -6839,91 +5530,26 @@ console.log(result);`;
             display: block;
         }
 
-        /* Divisões visuais claras entre seções */
-        .tab-content > div {
-            margin-bottom: 2rem;
-        }
-
-        .tab-content > div:last-child {
-            margin-bottom: 0;
-        }
-
-        /* Separadores visuais */
-        .section-divider {
-            height: 1px;
-            background: linear-gradient(to right, transparent, hsl(var(--border)), transparent);
-            margin: 2rem 0;
-        }
-
-        .section-header {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 2px solid hsl(var(--border) / 0.3);
-        }
-
-        .section-header h3 {
-            margin: 0;
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: hsl(var(--foreground));
-        }
-
-        .section-header .lucide {
-            color: hsl(var(--brand-primary));
-            width: 20px;
-            height: 20px;
-        }
-
 
         .diagnostic-controls {
             display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
             flex-wrap: wrap;
             align-items: center;
-            padding: 1.5rem;
-            background: hsl(var(--card));
-            border: 1px solid hsl(var(--border));
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        .diagnostic-controls label {
-            font-weight: 500;
-            color: hsl(var(--foreground));
-            margin-right: 0.75rem;
-        }
-
-        .diagnostic-controls select {
-            padding: 0.75rem 1rem;
-            background: hsl(var(--background));
-            border: 1px solid hsl(var(--border));
-            border-radius: 8px;
-            color: hsl(var(--foreground));
-            margin-right: 1rem;
-        }
-
-        .diagnostic-controls .btn {
-            padding: 0.75rem 1.25rem;
-            gap: 0.5rem;
         }
 
         .diagnostic-results-container,
         #diagnostic-results {
-            background: hsl(var(--card));
+            background: hsl(var(--surface-100));
             border: 1px solid hsl(var(--border));
-            border-radius: 12px;
-            padding: 2rem;
+            border-radius: var(--radius);
+            padding: 1rem;
             min-height: 300px;
-            max-height: 450px;
+            max-height: 400px;
             overflow-y: auto;
             overflow-x: hidden;
             word-wrap: break-word;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            margin-top: 1rem;
             box-sizing: border-box;
         }
 
@@ -7098,17 +5724,11 @@ console.log(result);`;
         }
 
         .history-container {
-            background: hsl(var(--card));
-            border: 1px solid hsl(var(--border));
-            border-radius: 12px;
-            padding: 2rem;
-            max-height: 450px;
-            min-height: 200px;
+            max-height: 400px;
             overflow-y: auto;
             overflow-x: hidden;
             word-wrap: break-word;
             box-sizing: border-box;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
         .history-item {
@@ -7127,54 +5747,15 @@ console.log(result);`;
         }
 
         .schedule-config {
-            background: hsl(var(--card));
+            background: hsl(var(--surface-100));
             border: 1px solid hsl(var(--border));
-            border-radius: 12px;
-            padding: 2rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        .schedule-config .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .schedule-config .form-group label {
-            display: block;
-            font-weight: 500;
-            color: hsl(var(--foreground));
-            margin-bottom: 0.5rem;
-        }
-
-        .schedule-config select,
-        .schedule-config input {
-            padding: 0.75rem;
-            background: hsl(var(--background));
-            border: 1px solid hsl(var(--border));
-            border-radius: 8px;
-            color: hsl(var(--foreground));
+            border-radius: var(--radius);
+            padding: 1rem;
+            margin-bottom: 1rem;
         }
 
         .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-            display: block;
-            font-weight: 500;
-            color: hsl(var(--foreground));
-            margin-bottom: 0.75rem;
-        }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            background: hsl(var(--background));
-            border: 1px solid hsl(var(--border));
-            border-radius: 8px;
-            color: hsl(var(--foreground));
-            font-size: 0.95rem;
+            margin-bottom: 1rem;
         }
 
         .form-group label {
@@ -7195,27 +5776,16 @@ console.log(result);`;
 
         .schedule-actions {
             display: flex;
-            gap: 1rem;
+            gap: 0.5rem;
             flex-wrap: wrap;
-            margin-top: 2rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid hsl(var(--border));
-        }
-
-        .schedule-actions .btn {
-            flex: 1;
-            min-width: 140px;
-            padding: 0.875rem 1.5rem;
-            gap: 0.75rem;
         }
 
         .cron-script-container {
-            background: hsl(var(--card));
+            background: hsl(var(--surface-100));
             border: 1px solid hsl(var(--border));
-            border-radius: 12px;
-            padding: 2rem;
+            border-radius: var(--radius);
+            padding: 1rem;
             margin-top: 1rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
         .cron-script-container pre {
@@ -7265,113 +5835,6 @@ console.log(result);`;
         .hidden {
             display: none;
         }
-
-        /* Instance Health Drawer Styles */
-        .health-overview {
-            display: flex;
-            align-items: center;
-            gap: 2rem;
-            margin: 1.5rem 0;
-            padding: 1.5rem;
-            background: hsl(var(--surface-100));
-            border-radius: 8px;
-            border: 1px solid hsl(var(--border));
-        }
-
-        .health-score {
-            text-align: center;
-        }
-
-        .score-number {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: hsl(var(--brand-primary));
-        }
-
-        .score-label {
-            font-size: 0.8rem;
-            color: hsl(var(--muted-foreground));
-            margin-top: 0.25rem;
-        }
-
-        .health-status {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .status-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            display: inline-block;
-        }
-
-        .status-indicator.healthy { background: hsl(var(--success)); }
-        .status-indicator.degraded { background: hsl(var(--warning)); }
-        .status-indicator.unhealthy { background: hsl(var(--error)); }
-        .status-indicator.critical { background: hsl(var(--destructive)); }
-
-        .status-text {
-            font-weight: 600;
-            text-transform: capitalize;
-        }
-
-        .services-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 1rem;
-            margin: 1.5rem 0;
-        }
-
-        .service-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem;
-            background: hsl(var(--card));
-            border: 1px solid hsl(var(--border));
-            border-radius: 6px;
-        }
-
-        .service-name {
-            font-weight: 500;
-        }
-
-        .service-status {
-            font-size: 0.9rem;
-        }
-
-        .service-status.healthy { color: hsl(var(--success)); }
-        .service-status.unhealthy { color: hsl(var(--error)); }
-
-        .health-actions {
-            display: flex;
-            gap: 1rem;
-            margin: 1.5rem 0;
-        }
-
-        .quick-actions {
-            margin-top: 2rem;
-        }
-
-        .quick-actions h5 {
-            margin-bottom: 1rem;
-            color: hsl(var(--foreground));
-            font-size: 0.9rem;
-        }
-
-        .service-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-
-        .service-buttons .btn {
-            min-width: auto;
-            padding: 0.5rem 0.75rem;
-            font-size: 0.8rem;
-        }
     </style>
 
     <script>
@@ -7379,52 +5842,24 @@ console.log(result);`;
         let currentDiagnosticInstanceName = null;
 
         // Função para abrir o modal de diagnósticos
-        // REMOVIDO: showDiagnosticPanel substituída por showInstanceHealthPanel
         function showDiagnosticPanel(instanceId, instanceName) {
-            // Redirecionar para nova função de saúde
-            return showInstanceHealthPanel(instanceId, instanceName);
-        }
+            currentDiagnosticInstanceId = instanceId;
+            currentDiagnosticInstanceName = instanceName;
             
             const drawer = document.getElementById('diagnostic-drawer');
             const backdrop = document.getElementById('diagnostic-backdrop');
             const title = document.getElementById('diagnostic-drawer-title');
-            
-            console.log('🔧 DEBUG: Elementos encontrados', { 
-                drawer: !!drawer, 
-                backdrop: !!backdrop, 
-                title: !!title 
-            });
-            
-            if (!drawer || !backdrop || !title) {
-                console.error('❌ DEBUG: Elementos do diagnóstico não encontrados!');
-                return;
-            }
             
             title.innerHTML = `<i data-lucide="activity" class="lucide"></i> Diagnósticos - ${instanceName}`;
             
             backdrop.classList.add('visible');
             drawer.classList.add('open');
             
-            console.log('🔧 DEBUG: Classes adicionadas, drawer deve estar visível');
-            
             // Carregar configuração de agendamento existente
-            try {
-                loadScheduleConfig();
-            } catch (error) {
-                console.error('❌ DEBUG: Erro em loadScheduleConfig:', error);
-            }
+            loadScheduleConfig();
             
             // Re-render icons
-            try {
-                updateDrawerIcons();
-            } catch (error) {
-                console.error('❌ DEBUG: Erro em updateDrawerIcons:', error);
-            }
-            
-            // Executar verificação rápida de status automaticamente
-            setTimeout(() => {
-                quickStatusCheck();
-            }, 500);
+            updateDrawerIcons();
         }
 
         // Função para fechar o drawer
@@ -7433,49 +5868,6 @@ console.log(result);`;
             document.getElementById('diagnostic-backdrop').classList.remove('visible');
             currentDiagnosticInstanceId = null;
             currentDiagnosticInstanceName = null;
-        }
-
-        // Função para verificação rápida de status - NOVA
-        async function quickStatusCheck() {
-            if (!currentDiagnosticInstanceId) return;
-            
-            const statusDot = document.querySelector('.status-dot');
-            const statusText = document.getElementById('instance-status-text');
-            const refreshBtn = document.getElementById('refresh-status-btn');
-            
-            console.log('🔧 DEBUG: quickStatusCheck iniciado');
-            
-            // Animação de loading
-            refreshBtn.style.opacity = '0.5';
-            statusText.textContent = 'Verificando...';
-            statusDot.className = 'status-dot status-unknown';
-            
-            try {
-                const response = await fetch(`/api/instances/${currentDiagnosticInstanceId}/quick-health`);
-                const data = await response.json();
-                
-                console.log('🔧 DEBUG: Status recebido:', data);
-                
-                if (data.success && data.healthy) {
-                    statusDot.className = 'status-dot status-healthy';
-                    statusText.textContent = 'Instância saudável ✅';
-                } else {
-                    statusDot.className = 'status-dot status-warning';
-                    statusText.textContent = 'Problemas detectados ⚠️';
-                    
-                    // Mostrar card de problemas
-                    const problemsCard = document.getElementById('problems-card');
-                    if (problemsCard) {
-                        problemsCard.style.display = 'block';
-                    }
-                }
-            } catch (error) {
-                console.error('❌ DEBUG: Erro no status check:', error);
-                statusDot.className = 'status-dot status-error';
-                statusText.textContent = 'Erro na verificação ❌';
-            } finally {
-                refreshBtn.style.opacity = '1';
-            }
         }
 
         // Função para trocar abas

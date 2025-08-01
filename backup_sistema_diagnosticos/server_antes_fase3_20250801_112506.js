@@ -31,14 +31,19 @@ const net = require('net');
 // CORREÇÃO FASE 4: Logging estruturado
 const logger = require('./utils/logger');
 
-// REMOVIDO: Sistema de diagnósticos antigo substituído pelo Service Monitor
+// Importar sistema de diagnóstico
+const HealthChecker = require('./diagnostics/health-checker');
+const LogAnalyzer = require('./diagnostics/log-analyzer');
+const DiagnosticHistory = require('./diagnostics/diagnostic-history');
+const ScheduledDiagnostics = require('./diagnostics/scheduled-diagnostics');
 
 // Importar sistema de gerenciamento seguro
 const SafeInstanceManager = require('./management/safe-manager');
 const ConfigEditor = require('./management/config-editor');
 const BackupSystem = require('./management/backup-system');
 
-// REMOVIDO: Auto-correção substituída pelo Service Restarter
+// Importar sistema de auto-correção
+const RepairAPI = require('./diagnostics/interfaces/repair-api');
 
 const execAsync = promisify(exec);
 const docker = new Docker();
@@ -2287,19 +2292,24 @@ class InstanceDiagnostics {
 const userManager = new UserManager();
 const manager = new SupabaseInstanceManager();
 
-// REMOVIDO: Sistema de diagnósticos substituído pelo Service Monitor
+// Instância global do sistema de diagnóstico
+const instanceDiagnostics = new InstanceDiagnostics({
+  DOCKER_DIR: DOCKER_DIR,
+  EXTERNAL_IP: EXTERNAL_IP,
+  SERVER_IP: SERVER_IP
+});
 
 // Instâncias globais do sistema de gerenciamento seguro
 const safeManager = new SafeInstanceManager(
   { DOCKER_DIR: DOCKER_DIR, EXTERNAL_IP: EXTERNAL_IP, SERVER_IP: SERVER_IP },
-  manager
-  // REMOVIDO: instanceDiagnostics dependência
+  manager,
+  instanceDiagnostics
 );
 
 const configEditor = new ConfigEditor(
   { DOCKER_DIR: DOCKER_DIR, EXTERNAL_IP: EXTERNAL_IP, SERVER_IP: SERVER_IP },
-  manager
-  // REMOVIDO: instanceDiagnostics dependência
+  manager,
+  instanceDiagnostics
 );
 
 const backupSystem = new BackupSystem({
@@ -2308,11 +2318,24 @@ const backupSystem = new BackupSystem({
   SERVER_IP: SERVER_IP
 });
 
-// REMOVIDO: RepairAPI substituído pelo Service Restarter
+// Instância global do sistema de auto-correção
+const repairAPI = new RepairAPI(
+  app,
+  { DOCKER_DIR: DOCKER_DIR, EXTERNAL_IP: EXTERNAL_IP, SERVER_IP: SERVER_IP },
+  manager,
+  instanceDiagnostics
+);
 
-// REMOVIDO: DiagnosticHistory e ScheduledDiagnostics substituídos pelo Service Monitor
+// Instância global do histórico de diagnósticos
+const diagnosticHistory = new DiagnosticHistory();
 
-// REMOVIDO: Cache cleanup do sistema antigo não é mais necessário
+// Instância global do sistema de agendamento
+const scheduledDiagnostics = new ScheduledDiagnostics();
+
+// Limpar cache a cada 5 minutos
+setInterval(() => {
+  instanceDiagnostics.cleanupCache();
+}, 5 * 60 * 1000);
 
 // Middleware de autenticação
 const authenticateToken = (req, res, next) => {
@@ -2822,15 +2845,41 @@ app.get('/api/instances/:id/logs', authenticateToken, checkProjectAccess, async 
 /**
  * Executa diagnóstico completo de uma instância
  */
-// REMOVIDO: API descontinuada - Redireciona para nova API de saúde
 app.get('/api/instances/:id/run-diagnostics', authenticateToken, checkProjectAccess, async (req, res) => {
-  // Redirecionar para nova API de saúde
-  return res.status(301).json({
-    success: false,
-    message: 'API descontinuada. Use /api/instances/:id/health',
-    redirect: `/api/instances/${req.params.id}/health`,
-    deprecated: true
-  });
+  try {
+    console.log(`🔍 Usuário ${req.user.id} executando diagnóstico para instância ${req.params.id}`);
+    
+    const diagnostic = await instanceDiagnostics.runFullDiagnostic(req.params.id);
+    
+    // Salvar diagnóstico no histórico
+    await diagnosticHistory.saveDiagnostic(req.params.id, diagnostic);
+    
+    res.json({
+      success: true,
+      message: 'Diagnóstico executado com sucesso',
+      diagnostic: diagnostic
+    });
+  } catch (error) {
+    console.error('❌ Erro no diagnóstico:', error);
+    
+    // Diferentes códigos de erro baseados no tipo
+    if (error.message.includes('Rate limit')) {
+      res.status(429).json({ 
+        error: error.message,
+        code: 'RATE_LIMITED'
+      });
+    } else if (error.message.includes('não encontrada')) {
+      res.status(404).json({ 
+        error: error.message,
+        code: 'INSTANCE_NOT_FOUND'
+      });
+    } else {
+      res.status(500).json({ 
+        error: error.message,
+        code: 'DIAGNOSTIC_FAILED'
+      });
+    }
+  }
 });
 
 /**

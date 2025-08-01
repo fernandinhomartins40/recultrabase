@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 30
+    },
+    "auditLog": "C:\\Projetos Cursor\\recultrabase\\src\\logs\\.fd1d5b62cd68bcd30c52cf96169563c47f4dc78a-audit.json",
+    "files": [
+        {
+            "date": 1753968092946,
+            "name": "C:\\Projetos Cursor\\recultrabase\\src\\logs\\errors-2025-07-31.log",
+            "hash": "e65a78d7e2295959e5b7d8245895c83b890f08420f355e2fdc175cbda8ee5976"
+        }
+    ],
+    "hashType": "sha256"
+}
