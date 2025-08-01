@@ -3091,8 +3091,8 @@ app.post('/api/instances/:id/diagnostic-action', authenticateToken, checkProject
     
     console.log(`🔧 Usuário ${req.user.id} executando ação '${action}' na instância ${instanceId}`);
     
-    // Verificar se a ação é segura
-    const safety = diagnosticActions.isActionSafe(action, instanceId);
+    // SISTEMA DE DIAGNÓSTICOS REMOVIDO - Substituído pelo Service Monitor
+    const safety = { safe: false, reason: 'Sistema de diagnósticos removido. Use Service Monitor.' };
     
     if (!safety.safe) {
       return res.status(400).json({
@@ -3117,28 +3117,52 @@ app.post('/api/instances/:id/diagnostic-action', authenticateToken, checkProject
     // Executar ação baseada no tipo
     switch (action) {
       case 'restart_container':
-        result = await diagnosticActions.restartContainer(instanceId, target);
+        result = { 
+          success: false, 
+          message: 'Sistema de diagnósticos removido. Use /api/instances/:id/restart-services',
+          migration_needed: true 
+        };
         break;
         
       case 'start_container':
-        result = await diagnosticActions.startContainer(instanceId, target);
+        result = { 
+          success: false, 
+          message: 'Sistema de diagnósticos removido. Use /api/instances/:id/restart-services',
+          migration_needed: true 
+        };
         break;
         
       case 'recreate_service':
-        result = await diagnosticActions.recreateService(instanceId, target);
+        result = { 
+          success: false, 
+          message: 'Sistema de diagnósticos removido. Use /api/instances/:id/restart-services',
+          migration_needed: true 
+        };
         break;
         
       case 'get_logs':
         const lines = req.body.lines || 50;
-        result = await diagnosticActions.getContainerLogs(instanceId, target, lines);
+        result = { 
+          success: false, 
+          message: 'Sistema de diagnósticos removido. Use docker logs diretamente',
+          migration_needed: true 
+        };
         break;
         
       case 'clear_logs':
-        result = await diagnosticActions.clearContainerLogs(instanceId, target);
+        result = { 
+          success: false, 
+          message: 'Sistema de diagnósticos removido. Use docker logs diretamente',
+          migration_needed: true 
+        };
         break;
         
       case 'restart_instance':
-        result = await diagnosticActions.restartInstance(instanceId);
+        result = { 
+          success: false, 
+          message: 'Sistema de diagnósticos removido. Use /api/instances/:id/restart-services',
+          migration_needed: true 
+        };
         break;
         
       default:
@@ -3176,7 +3200,7 @@ app.post('/api/instances/:id/diagnostic-action', authenticateToken, checkProject
 app.get('/api/instances/:id/action-history', authenticateToken, checkProjectAccess, async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 20;
-    const history = diagnosticActions.getActionHistory(req.params.id, limit);
+    const history = []; // Sistema de diagnósticos removido
     
     res.json({
       success: true,
@@ -3199,7 +3223,7 @@ app.get('/api/instances/:id/action-history', authenticateToken, checkProjectAcce
  */
 app.get('/api/instances/:id/action-stats', authenticateToken, checkProjectAccess, async (req, res) => {
   try {
-    const stats = diagnosticActions.getActionStats();
+    const stats = { message: 'Sistema migrado para Service Monitor' };
     
     res.json({
       success: true,
