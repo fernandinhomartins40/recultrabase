@@ -2245,6 +2245,147 @@
             initializeTheme();
         }
 
+        // AUTHENTICATION SYSTEM
+        class AuthManager {
+            constructor() {
+                this.token = localStorage.getItem('ultrabase_token');
+                this.user = null;
+                this.init();
+            }
+
+            async init() {
+                if (this.token) {
+                    try {
+                        await this.verifyToken();
+                    } catch (error) {
+                        console.error('Token inválido:', error);
+                        this.redirectToLogin();
+                    }
+                } else {
+                    this.redirectToLogin();
+                }
+            }
+
+            redirectToLogin() {
+                // Redireciona para a página de login dedicada ao invés de mostrar modal
+                window.location.href = '/login';
+            }
+
+            async login(username, password) {
+                try {
+                    const response = await fetch('/api/auth/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ username, password })
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.error || 'Erro no login');
+                    }
+
+                    this.token = data.token;
+                    this.user = data.user;
+                    localStorage.setItem('ultrabase_token', this.token);
+                    
+                    // Login modal removido - não é mais necessário ocultar
+                    this.showDashboard();
+                    this.updateUserHeader();
+                    
+                    // Refresh projects
+                    loadProjects();
+                    
+                    return data;
+                } catch (error) {
+                    throw error;
+                }
+            }
+
+            async verifyToken() {
+                const response = await fetch('/api/auth/verify', {
+                    headers: {
+                        'Authorization': `Bearer ${this.token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Token inválido');
+                }
+
+                const data = await response.json();
+                this.user = data.user;
+                this.showDashboard();
+                this.updateUserHeader();
+            }
+
+            logout() {
+                this.token = null;
+                this.user = null;
+                localStorage.removeItem('ultrabase_token');
+                this.redirectToLogin();
+            }
+
+            showDashboard() {
+                document.querySelectorAll('.auth-required').forEach(el => {
+                    el.classList.add('authenticated');
+                });
+            }
+
+            hideDashboard() {
+                document.querySelectorAll('.auth-required').forEach(el => {
+                    el.classList.remove('authenticated');
+                });
+            }
+
+            showUserHeader() {
+                const headerUserInfo = document.getElementById('header-user-info');
+                if (headerUserInfo) {
+                    headerUserInfo.style.display = 'flex';
+                } else {
+                    console.warn('Elemento header-user-info não encontrado');
+                }
+            }
+
+            hideUserHeader() {
+                const headerUserInfo = document.getElementById('header-user-info');
+                if (headerUserInfo) {
+                    headerUserInfo.style.display = 'none';
+                } else {
+                    console.warn('Elemento header-user-info não encontrado');
+                }
+            }
+
+            updateUserHeader() {
+                if (this.user) {
+                    const userNameEl = document.getElementById('header-user-name');
+                    const userRoleEl = document.getElementById('header-user-role');
+                    
+                    if (userNameEl && userRoleEl) {
+                        userNameEl.textContent = this.user.id;
+                        userRoleEl.textContent = this.user.role === 'admin' ? 'Administrador' : 'Usuário';
+                        this.showUserHeader();
+                    } else {
+                        console.warn('Elementos do header do usuário não encontrados');
+                    }
+                }
+            }
+
+            getAuthHeaders() {
+                return this.token ? {
+                    'Authorization': `Bearer ${this.token}`,
+                    'Content-Type': 'application/json'
+                } : {
+                    'Content-Type': 'application/json'
+                };
+            }
+        }
+
+        // Global auth manager instance
+        const authManager = new AuthManager();
+
         // Initialize App
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🔧 DEBUG: JavaScript carregado, DOM pronto');
