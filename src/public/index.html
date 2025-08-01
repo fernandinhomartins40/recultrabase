@@ -5138,9 +5138,7 @@ volumes:
             try {
                 const response = await fetch(`/api/instances/${projectId}/execute-sql`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: authManager.getAuthHeaders(),
                     body: JSON.stringify({ query })
                 });
                 
@@ -5319,9 +5317,7 @@ CREATE POLICY "Users can create posts" ON public.posts
                 
                 const response = await fetch(`/api/instances/${projectId}/create-webhook`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: authManager.getAuthHeaders(),
                     body: JSON.stringify({ 
                         permissions: permissionLevel,
                         name: `Cursor Webhook - ${new Date().toLocaleDateString()}`,
@@ -5379,9 +5375,7 @@ console.log(result);`;
                 
                 const response = await fetch(`/api/instances/${projectId}/webhooks`, {
                     method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
+                    headers: authManager.getAuthHeaders()
                 });
                 
                 const result = await response.json();
@@ -5432,9 +5426,7 @@ console.log(result);`;
                 
                 const response = await fetch(`/api/instances/${projectId}/webhooks/${webhookId}`, {
                     method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
+                    headers: authManager.getAuthHeaders()
                 });
                 
                 const result = await response.json();
@@ -5923,7 +5915,7 @@ console.log(result);`;
                 
                 const response = await fetch(`/api/instances/${currentHealthInstanceId}/restart-services`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: authManager.getAuthHeaders(),
                     body: JSON.stringify({ forceAll: false })
                 });
                 
@@ -6071,7 +6063,8 @@ console.log(result);`;
                 showAlert(`🔄 Reiniciando ${getServiceDisplayName(serviceName)}...`, 'info');
                 
                 const response = await fetch(`/api/instances/${currentHealthInstanceId}/restart-service/${serviceName}`, {
-                    method: 'POST'
+                    method: 'POST',
+                    headers: authManager.getAuthHeaders()
                 });
                 
                 const result = await response.json();
@@ -6385,9 +6378,7 @@ console.log(result);`;
                 
                 const response = await fetch(`/api/instances/${currentProblemAnalysis.instance_id}/auto-repair`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: authManager.getAuthHeaders(),
                     body: JSON.stringify(options)
                 });
                 
