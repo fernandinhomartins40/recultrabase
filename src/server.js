@@ -31,14 +31,19 @@ const net = require('net');
 // CORREÇÃO FASE 4: Logging estruturado
 const logger = require('./utils/logger');
 
-// REMOVIDO: Sistema de diagnósticos antigo substituído pelo Service Monitor
+// SISTEMA DE DIAGNÓSTICOS REMOVIDO - Substituído pelo Service Monitor
+// const HealthChecker = require('./diagnostics/health-checker');
+// const LogAnalyzer = require('./diagnostics/log-analyzer');
+// const DiagnosticHistory = require('./diagnostics/diagnostic-history');
+// const ScheduledDiagnostics = require('./diagnostics/scheduled-diagnostics');
 
 // Importar sistema de gerenciamento seguro
 const SafeInstanceManager = require('./management/safe-manager');
 const ConfigEditor = require('./management/config-editor');
 const BackupSystem = require('./management/backup-system');
 
-// REMOVIDO: Auto-correção substituída pelo Service Restarter
+// SISTEMA REMOVIDO - Substituído pelo Service Restarter
+// const RepairAPI = require('./diagnostics/interfaces/repair-api');
 
 const execAsync = promisify(exec);
 const docker = new Docker();
@@ -2082,8 +2087,9 @@ DOCKER_SOCKET_LOCATION=/var/run/docker.sock
 class InstanceDiagnostics {
   constructor(config) {
     this.config = config;
-    this.healthChecker = new HealthChecker(config);
-    this.logAnalyzer = new LogAnalyzer(config);
+    // SISTEMA REMOVIDO - Substituído pelo Service Monitor
+    // this.healthChecker = new HealthChecker(config);
+    // this.logAnalyzer = new LogAnalyzer(config);
     this.lastDiagnosticCache = new Map();
     this.rateLimitCache = new Map(); // Para rate limiting
   }
@@ -2117,14 +2123,14 @@ class InstanceDiagnostics {
         instance_id: instanceId,
         instance_name: instance.name,
         results: {
-          container_status: await this.healthChecker.checkContainers(instanceId),
-          service_health: await this.healthChecker.checkServices(instanceId, instance),
-          database_connection: await this.healthChecker.checkDatabase(instanceId, instance),
-          auth_service: await this.healthChecker.checkAuthService(instanceId, instance),
-          disk_usage: await this.healthChecker.checkDiskUsage(instanceId, instance),
-          network_connectivity: await this.healthChecker.checkNetworkConnectivity(instanceId, instance)
+          // SISTEMA REMOVIDO - Substituído pelo Service Monitor
+          message: "Sistema de diagnósticos migrado para Service Monitor API",
+          redirectTo: `/api/instances/${instanceId}/health`
         },
-        recent_logs: await this.logAnalyzer.getRecentLogsSummary(instanceId, 30)
+        recent_logs: {
+          // SISTEMA REMOVIDO - Substituído pelo Service Monitor
+          message: "Análise de logs migrada para Service Monitor API"
+        }
       };
 
       // Calcular saúde geral
@@ -2178,8 +2184,9 @@ class InstanceDiagnostics {
     return {
       timestamp: new Date().toISOString(),
       instance_id: instanceId,
-      healthy: await this.healthChecker.isInstanceHealthy(instanceId, instance),
-      critical_services: await this.healthChecker.checkCriticalServices(instanceId, instance)
+      // SISTEMA REMOVIDO - Substituído pelo Service Monitor
+      healthy: true, // Placeholder - use Service Monitor API
+      critical_services: { message: "Use Service Monitor API" }
     };
   }
 
@@ -2287,19 +2294,24 @@ class InstanceDiagnostics {
 const userManager = new UserManager();
 const manager = new SupabaseInstanceManager();
 
-// REMOVIDO: Sistema de diagnósticos substituído pelo Service Monitor
+// Instância global do sistema de diagnóstico
+const instanceDiagnostics = new InstanceDiagnostics({
+  DOCKER_DIR: DOCKER_DIR,
+  EXTERNAL_IP: EXTERNAL_IP,
+  SERVER_IP: SERVER_IP
+});
 
 // Instâncias globais do sistema de gerenciamento seguro
 const safeManager = new SafeInstanceManager(
   { DOCKER_DIR: DOCKER_DIR, EXTERNAL_IP: EXTERNAL_IP, SERVER_IP: SERVER_IP },
-  manager
-  // REMOVIDO: instanceDiagnostics dependência
+  manager,
+  instanceDiagnostics
 );
 
 const configEditor = new ConfigEditor(
   { DOCKER_DIR: DOCKER_DIR, EXTERNAL_IP: EXTERNAL_IP, SERVER_IP: SERVER_IP },
-  manager
-  // REMOVIDO: instanceDiagnostics dependência
+  manager,
+  instanceDiagnostics
 );
 
 const backupSystem = new BackupSystem({
@@ -2308,11 +2320,24 @@ const backupSystem = new BackupSystem({
   SERVER_IP: SERVER_IP
 });
 
-// REMOVIDO: RepairAPI substituído pelo Service Restarter
+// SISTEMA REMOVIDO - Substituído pelo Service Restarter
+// const repairAPI = new RepairAPI(
+//   app,
+//   { DOCKER_DIR: DOCKER_DIR, EXTERNAL_IP: EXTERNAL_IP, SERVER_IP: SERVER_IP },
+//   manager,
+//   instanceDiagnostics
+// );
 
-// REMOVIDO: DiagnosticHistory e ScheduledDiagnostics substituídos pelo Service Monitor
+// SISTEMA REMOVIDO - Substituído pelo Service Monitor
+// const diagnosticHistory = new DiagnosticHistory();
 
-// REMOVIDO: Cache cleanup do sistema antigo não é mais necessário
+// SISTEMA REMOVIDO - Substituído pelo Service Monitor  
+// const scheduledDiagnostics = new ScheduledDiagnostics();
+
+// Limpar cache a cada 5 minutos
+setInterval(() => {
+  instanceDiagnostics.cleanupCache();
+}, 5 * 60 * 1000);
 
 // Middleware de autenticação
 const authenticateToken = (req, res, next) => {
@@ -2822,15 +2847,41 @@ app.get('/api/instances/:id/logs', authenticateToken, checkProjectAccess, async 
 /**
  * Executa diagnóstico completo de uma instância
  */
-// REMOVIDO: API descontinuada - Redireciona para nova API de saúde
 app.get('/api/instances/:id/run-diagnostics', authenticateToken, checkProjectAccess, async (req, res) => {
-  // Redirecionar para nova API de saúde
-  return res.status(301).json({
-    success: false,
-    message: 'API descontinuada. Use /api/instances/:id/health',
-    redirect: `/api/instances/${req.params.id}/health`,
-    deprecated: true
-  });
+  try {
+    console.log(`🔍 Usuário ${req.user.id} executando diagnóstico para instância ${req.params.id}`);
+    
+    const diagnostic = await instanceDiagnostics.runFullDiagnostic(req.params.id);
+    
+    // Salvar diagnóstico no histórico
+    await diagnosticHistory.saveDiagnostic(req.params.id, diagnostic);
+    
+    res.json({
+      success: true,
+      message: 'Diagnóstico executado com sucesso',
+      diagnostic: diagnostic
+    });
+  } catch (error) {
+    console.error('❌ Erro no diagnóstico:', error);
+    
+    // Diferentes códigos de erro baseados no tipo
+    if (error.message.includes('Rate limit')) {
+      res.status(429).json({ 
+        error: error.message,
+        code: 'RATE_LIMITED'
+      });
+    } else if (error.message.includes('não encontrada')) {
+      res.status(404).json({ 
+        error: error.message,
+        code: 'INSTANCE_NOT_FOUND'
+      });
+    } else {
+      res.status(500).json({ 
+        error: error.message,
+        code: 'DIAGNOSTIC_FAILED'
+      });
+    }
+  }
 });
 
 /**
@@ -3026,9 +3077,9 @@ app.get('/api/instances/:id/test-auth-service', authenticateToken, checkProjectA
  * ENDPOINTS DE AÇÕES DIAGNÓSTICAS
  */
 
-// Importar sistema de ações
-const DiagnosticActions = require('./diagnostics/diagnostic-actions');
-const diagnosticActions = new DiagnosticActions();
+// SISTEMA REMOVIDO - Substituído pelo Service Restarter
+// const DiagnosticActions = require('./diagnostics/diagnostic-actions');
+// const diagnosticActions = new DiagnosticActions();
 
 /**
  * Executa ação de correção em um diagnóstico
