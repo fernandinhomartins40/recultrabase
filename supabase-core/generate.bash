@@ -116,6 +116,24 @@ export LOGFLARE_API_KEY="your_logflare_key"
 export LOGFLARE_LOGGER_BACKEND_API_KEY="your_logflare_key"
 export PGRST_DB_SCHEMAS=public,storage,graphql_public
 
+# Additional required variables
+export REALTIME_PORT=4000
+export SECRET_KEY_BASE=$(openssl rand -hex 32)
+export VAULT_ENC_KEY=$(openssl rand -hex 16)
+export POOLER_TENANT_ID="tenant_${INSTANCE_ID}"
+export POOLER_DEFAULT_POOL_SIZE="15"
+export POOLER_MAX_CLIENT_CONN="100"
+export POOLER_PROXY_PORT_TRANSACTION=6543
+
+# Mailer URL paths (defaults)
+export MAILER_URLPATHS_INVITE="/auth/v1/verify"
+export MAILER_URLPATHS_CONFIRMATION="/auth/v1/verify"
+export MAILER_URLPATHS_RECOVERY="/auth/v1/verify"
+export MAILER_URLPATHS_EMAIL_CHANGE="/auth/v1/verify"
+
+# Additional redirect URLs (empty by default)
+export ADDITIONAL_REDIRECT_URLS=""
+
 # Substitute variables in .env.template and generate instance-specific .env
 envsubst < .env.template > .env-${INSTANCE_ID}
 
